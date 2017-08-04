@@ -1,0 +1,86 @@
+{% extends "base_form.html" %}
+
+{% block form_body %}
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+     <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% if form.non_field_errors() %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>{% endif %}
+
+                {% set messages = get_messages(request) %}
+                {% if messages %}
+                <div class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ messages|join('|') }}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                        {{ form_input(form.section_name, "col-sm-2 control-label", "col-sm-4") }}
+                    </div>
+                <div class="form-group">
+                        {{ form_select(form.type, "col-sm-2 control-label", "col-sm-4") }}
+                        {{ form_select2(form.level_id, url('unit:game_choices'), select_game_options,"col-sm-2 control-label", "col-sm-4", attrs=None) }}
+                    </div>
+                <div class="col-lg-12 col-lg-offset-2">
+
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+
+
+            </div>
+        </div>
+     </div>
+
+</form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+
+    <script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+    <script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+    <script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/javascript">
+    function set_type() {
+        var type_value = $('#id_type').val();
+    $('#id_level_id').attr("data-ajax--url", "{{ url('unit:game_choices') }}");
+    $("#id_level_id").select2({
+    minimumInputLength: 0,
+    ajax: {
+        url: $(this).attr("data-ajax--url"),
+        dataType: "json",
+        data: function (params) {
+            return {
+                q: params.term,
+                page: params.page,
+                type: type_value,
+            };
+        },
+        processResults: function (data, params) {
+            var num = data.num;
+            params.page = params.page || 1;
+            var more = data.results.length == num;
+            //var more = (data.page * num) < data.total_count;
+            data.pagination = {more: more};
+            return data;
+        },
+        cache: true
+    },
+});
+    }
+$(document).ready(function () {
+    set_type();
+    $('#id_type').on("change", function (e) {
+    set_type();
+    $('#id_level_id').val(null).trigger("change");
+})
+})
+
+</script>
+{% endblock %}

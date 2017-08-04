@@ -1,0 +1,150 @@
+{% extends "base_list.html" %}
+
+{% block search_module %}
+<section class="content-header">
+  <h1>
+	{{title}}
+	<small>{{title}}</small>
+  </h1>
+  <ol class="breadcrumb">
+	<li><a href="#"><i class="fa fa-dashboard"></i> {{title}}</a></li>
+	<li class="active">{{title}}</li>
+  </ol>
+</section>
+{%- endblock search_module %}
+
+{% block list_body %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row mbh">
+
+                    <div class="col-sm-12 dataTables_filter">
+                    </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="dataTables">
+                            <thead>
+                            <tr>
+                                <th>分类</th>
+                                <th>关联课程体系</th>
+                                <th>曲子数</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="id-list">
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.dataTable_wrapper -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+    </div> <!-- /.row -->
+{% endblock list_body %}
+
+{% block body_js %}
+<script type="text/javascript">
+     function reset_status(id) {
+        bootbox.confirm({
+            size: "small",
+            title: "发布状态",
+            message: "确认更改",
+            callback: function (result) {
+                if(result){
+                    $.ajax({
+                        type: "POST",
+                        url: "/video/reset_status/",
+                        data: {
+                            "id": id,
+                            "csrfmiddlewaretoken": "{{ csrf_token }}",
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            search();
+                        },
+                    });
+                }
+            }
+        });
+    }
+$(document).ready(function () {
+    var table = $('#dataTables').dataTable({
+        "dom": 'ltpr',
+        "language": {
+            "url": "{{ static('lib/js/dataTable.Chinese.json') }}"
+        },
+        "responsive": true,
+        "lengthChange": false,
+        "serverSide": true,
+        "ajax": {
+            url: "/score_optional/datatable/",
+            type: "POST",
+            data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+        },
+        "columns": {{ list_fields.to_json()|safe }},
+        "searchCols": [
+            {% for col in list_fields.to_list() -%}
+            {% if col.name in searches -%}
+            {{ searches[col.name]|jsonify|safe }},
+            {% else %}
+            null,
+            {%- endif %}
+            {%- endfor %}
+        ],
+        "columnDefs": [
+            {
+                "targets": [3],
+                 "render": function ( data, type, full, meta ) {
+                     return '<a href="/score_optional/score_optional_list/score_optional_modify/'+data+'">编辑</a>';
+
+                },
+            },
+        ],
+        "order": [[1, 'desc']],
+        "processing": true,
+        "deferRender": true,
+        {#
+        {% if not searches -%}
+        "deferLoading": true,
+        {%- endif %}
+        #}
+        "pageLength": 10,
+    });
+
+
+    $('#function').change(function(){
+        var $selAll = $('#select-allpage');
+        if($(this).val()=='set_refunded'){
+            $selAll.removeAttr('checked');
+            $selAll.attr('disabled','disabled');
+        }else{
+            $('#select-allpage').removeAttr('disabled');
+        }
+    });
+    //=== search click ===
+    $("#id-search-btn").on("keyup click", function () {
+        search();
+    });
+
+    $("#id-th-checkbox").on("change", function () {
+        $("#id-list").find("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    });
+
+
+    $("#select-allpage").on("click", function () {
+        $("#id-th-checkbox").prop("checked", $("#select-allpage").prop("checked"));
+        $("#id-list").find("input[type=checkbox]").prop("checked", $("#select-allpage").prop("checked"));
+    });
+
+});
+</script>
+
+{% endblock %}

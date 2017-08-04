@@ -1,0 +1,134 @@
+{% extends "base_form.html" %}
+
+{% macro segment_template(start, end, lable_info, id) -%}
+<div class="form-group">
+    <input type="hidden" name="segment_id" value="{{ id }}">
+    <label class="col-sm-2 control-label" style="padding-right: 0px;">开始时间:</label>
+    <div class="col-sm-2">
+        <div class="col-sm-10">
+            <input name='start_time' class="form-control col-sm-2" style="padding-right: 0px;" type="text"
+                   value="{{ start }}"
+                   onkeyup="this.value=this.value.replace(/[^\d\.]+?/g,'')">
+        </div>
+        <label class="col-sm-1 control-label" style="padding-left: 0px;">秒</label>
+
+    </div>
+
+    <label class="col-sm-1 control-label" style="padding-right: 0px;">结束时间:</label>
+    <div class="col-sm-2">
+    <div class="col-sm-10"><input name='end_time' class="form-control col-sm-2" style="padding-right: 0px;" type="text" value="{{ end }}"
+                                 onkeyup="this.value=this.value.replace(/[^\d\.]+?/g,'')">
+    </div>
+        <label class="col-sm-1 control-label" style="padding-left: 0px;">秒</label>
+    </div>
+    <label class="col-sm-1 control-label" style="padding-right: 0px;">标签信息:</label>
+    <div class="col-sm-2">
+    <div class="col-sm-10"><input name='label_info' class="form-control" type="text" style="padding-right: 0px;" value="{{ lable_info }}">
+    </div>
+    </div>
+    <button type="button" class="btn btn-primary btn-segment-delete">删除</button>
+</div>
+{%- endmacro %}
+{% block form_body %}
+
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% if form.non_field_errors() %}
+                    <div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>
+                    {% endif %}
+
+                    {% set messages = get_messages(request) %}
+                    {% if messages %}
+                    <div class="alert alert-success alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ messages|join('|') }}
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        {{ form_input_image(form.video_path, form.video_name, form.thumb_path, form.size, form.time,
+                        "col-sm-2 control-label", "col-sm-4", u_type=False, ) }}
+                    </div>
+                    <div class="form-group">
+
+                        {{ form_input(form.name, "col-sm-2 control-label", "col-sm-4") }}
+
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_select(form.type, "col-sm-2 control-label", "col-sm-4") }}
+
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_bool(form.status, "col-sm-2 control-label", "col-sm-2", "checkbox") }}
+
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"><a id='btn-add-segment' href="javascript:void(0)">＋添加乐段</a> </label>
+                    </div>
+                    <div class="form-group" id="add-new-segment">
+                        <input type="hidden" id="delete-id" name="delete_id" value=",">
+                        {%for seg in segments%}
+                        {{ segment_template(seg.start, seg.end, seg.label, seg.id) }}
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-12 col-lg-offset-2">
+
+                        <button type="submit" class="btn btn-primary ">保存</button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% endblock form_body %}
+{% block body_js%}
+
+
+<script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+<script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+<script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/html" class="segment-html">
+    {{ segment_template ('','','','no')}}
+</script>
+<script type="text/javascript">
+    function delete_segment_init() {
+        $(".btn-segment-delete").on("click", function () {
+            var segment_id = $(this).parent().find("[name='segment_id']").val();
+            //alert(segment_id);
+            if (segment_id && segment_id != ''&& segment_id!='no') {
+                var current_id = $('#delete-id').val();
+                current_id = current_id + segment_id + ',';
+                $('#delete-id').val(current_id);
+
+            }
+            $(this).parent().remove();
+
+        });
+    }
+    active_valid('start_time');
+    active_valid('end_time');
+    active_valid('label_info');
+    delete_segment_init();
+    $('#btn-add-segment').click(function () {
+        $('#add-new-segment').append($('.segment-html').html());
+        active_valid('start_time');
+        active_valid('end_time');
+        active_valid('label_info');
+        delete_segment_init();
+    });
+</script>
+{% endblock%}

@@ -1,0 +1,783 @@
+{% extends "base_list.html" %}
+
+
+{% block more_filter -%}
+{%- endblock more_filter %}
+
+
+{% block only_nav %}
+{% endblock only_nav %}
+
+{% block csscontent %}
+    <link href="{{ static('lib/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ static('css/bootstrap-markdown.min.css') }}" rel="stylesheet">
+    {#        <link href="{{ static('css/flat-ui.css') }}" rel="stylesheet">#}
+    {#    <link href="{{ static('css/ace.min.css') }}" rel="stylesheet">#}
+
+    <link href="http://cdn.bootcss.com/bootstrap-fileinput/4.3.6/css/fileinput.css" rel="stylesheet">
+
+{% endblock csscontent %}
+
+
+{% block list_body %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row mbh">
+
+                        <div class="col-sm-12 dataTables_filter">
+
+                            <div class="col-lg-8">
+                                <a type="" class="btn btn-primary"
+                                   href="/musicballoon/level_manager/edit/?lid={{ level_id }}"><
+
+
+                                    <返回上一页
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <h3> {% if sublevel.name %}{{ sublevel.name }}关卡{% else %}{% endif %}</h3>
+
+                    <form id="index_form" name="index_form" action='/musicballoon/level_manager/sublevel_add/'
+                          role="form" method="post" class="form-horizontal"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="id" value={{ sublevel.id }}>
+                        <input type="hidden" name="level_id" value={{ level_id }}>
+                        <div class="row">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+
+
+                                    <div class="row">
+
+                                        <div class="col-sm-12 form-group">
+                                            <div class="col-sm-6">
+                                                <h5 class="demo-panel-title">基本信息</h5>
+                                                <div class="row" style="padding: 0px 0px 0px 0px;">
+                                                    <div class="form-group">
+                                                        <label for="sublevel_name"
+                                                               class="col-sm-3 control-label"><span
+                                                                class="text-danger">*</span>小关名称:</label>
+                                                        <div class="col-sm-6">
+                                                            <input type="text" name="sublevel_name" class="form-control"
+                                                                   id="sublevel_name"
+                                                                   style=" width: 200px; "
+
+                                                                    {% if sublevel.name %}
+                                                                   value="{{ sublevel.name }}" {% else %}
+                                                                   value="" {% endif %}
+
+                                                                    {% if sublevel.name %}
+                                                                   placeholder="{{ sublevel.name }}" {% else %}
+                                                                   placeholder=""{% endif %}>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="row" style="padding: 10px 0px 0px 0px;">
+                                                    <div class="form-group">
+                                                        <label for="sublevel_name"
+                                                               class="col-sm-3 control-label"><span
+                                                                class="text-danger">*</span>小关顺序:</label>
+                                                        <div class="col-sm-6">
+                                                            <input type="text" class="form-control" id="sublevel_seq"
+                                                                   style=" width: 200px;"
+
+                                                                    {% if sublevel.seq %}
+                                                                   value="{{ sublevel.seq }}" {% else %}
+                                                                   value="" {% endif %}
+
+
+                                                                   name="sublevel_seq"
+                                                                    {% if sublevel.seq %}
+                                                                   placeholder="{{ sublevel.seq }}" {% else %}
+                                                                   placeholder="" {% endif %}>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="row" style="padding: 10px 0px 0px 0px;">
+                                                    <div class="form-group">
+                                                        <label for="sublevel_name"
+                                                               class="col-sm-3 control-label"><span
+                                                                class="text-danger">*</span>描&nbsp&nbsp述:</label>
+                                                        <div class="col-sm-6">
+                                                        <textarea type="text" class="form-control" id="sublevel_desc"
+                                                                  name="sublevel_description"
+                                                                  style=" width: 200px;height: 134px;"
+
+                                                                  {% if sublevel.description %}placeholder="添加描述" {% else %}
+                                                                  placeholder=""{% endif %}>
+                                                            {% if sublevel.description %}
+                                                                {{ sublevel.description }}{% endif %}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+
+
+                                            <div class="col-sm-6">
+                                                <h5 class="demo-panel-title">元素(%)</h5>
+                                                <label class="checkbox" for="sublevel_pitch">
+
+                                                    <span>音名：
+                                                    <input type="text"
+                                                           style=" width: 200px; margin:-27px 0px 10px 50px;"
+                                                           {% if sublevel.pitch_rate %}value="{{ sublevel.pitch_rate }}" {% else %}
+                                                           value=""{% endif %}
+                                                           class="form-control" id="dd" name="sublevel_pitch_rate"
+                                                           placeholder="请填写占比"></span>
+                                                </label>
+
+
+                                                <label class="checkbox" for="sublevel_sing">
+
+
+                                                    <span>唱名：</span>
+                                                    <input type="text"
+                                                           name="sublevel_sing_rate"
+                                                           style=" width: 200px; margin:-27px 0px 10px 50px;"
+
+                                                            {% if sublevel.sing_rate %}
+                                                           value="{{ sublevel.sing_rate }}" {% else %}
+                                                           value="" {% endif %}
+                                                           class="form-control" id="dd"
+                                                           placeholder="请填写占比">
+                                                </label>
+
+
+                                                <label class="checkbox" for="sublevel_score">
+
+
+                                                    <span>五线谱：</span>
+                                                    <input type="text"
+                                                           name="sublevel_score_rate"
+
+                                                            {% if sublevel.score_rate %}
+                                                           value="{{ sublevel.score_rate }}" {% else %}
+                                                           value="" {% endif %}
+                                                           style=" width: 200px; margin:-27px 0px 10px 50px;"
+                                                           class="form-control" id="dd"
+                                                           placeholder="请填写占比">
+                                                </label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+
+
+                                        <div class="col-sm-6">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    {#                                             <h5 class="demo-panel-title">提示</h5>#}
+                                                    {#                                        有提示气球（从琴键对应位置飞出的气球）的占比（*）#}
+                                                    <label for="sublevel_hint_rate"
+
+                                                           class="col-sm-3 control-label"><span
+                                                            class="text-danger">*</span>提示气球:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="sublevel_hint_rate"
+                                                               name="sublevel_hint_rate"
+
+                                                                {% if sublevel.hint_rate %}
+                                                               value="{{ sublevel.hint_rate }}"
+                                                               {% else %}value=""{% endif %}
+                                                               style=" width: 200px;"
+                                                               placeholder="默认占比">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="sublevel_pop_interval"
+                                                           class="col-sm-3 control-label"><span
+                                                            class="text-danger">*</span>气球速度:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control"
+                                                               id="sublevel_pop_interval"
+                                                               style=" width: 200px; "
+                                                               value=""
+                                                               name="sublevel_pop_interval"
+                                                               placeholder="输入时间（s）">
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="sublevel_desc"
+                                                           class="col-sm-3 control-label"><span
+                                                            class="text-danger">*</span>气球停留时间:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="sublevel_desc"
+                                                               name="sublevel_fly_time"
+
+                                                               {% if sublevel.fly_time %}value="{{ sublevel.fly_time }}"
+                                                               {% else %}value=""{% endif %}
+                                                               style=" width: 200px; "
+                                                               placeholder="输入时间（s）">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="sublevel_desc"
+                                                           class="col-sm-3 control-label"><span
+                                                            class="text-danger">*</span>关卡时长:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="sublevel_desc"
+                                                               name="sublevel_level_time"
+                                                               style=" width: 200px; "
+
+                                                               {% if sublevel.level_time %}value="{{ sublevel.level_time }}"
+                                                               {% else %}value=""{% endif %}
+                                                               placeholder="输入时间（s）">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                        <div class="col-sm-6"
+                                             style="margin: -170px 0px 0px 0px ;padding: 25px 0px 0px 0px; height: 250px;width: 250px;">
+                                            <span>添加关卡音乐</span>
+                                            <input id="sublevel_backmusic" name="sublevel_backmusic" type="file">
+                                        </div>
+
+
+                                    </div>
+                                    <div class="row">
+
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12" style="padding-left:60px">
+
+                                            <div class="col-sm-6" style="">
+                                                <h5 class="demo-panel-title">上键 小字一组</h5>
+
+                                                <label class="checkbox " for="up_little_c1">
+                                               <span>c1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+                                                               class="form-control" id="dd"
+                                                               value=""
+
+                                                               name="up_little_c1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_d1">
+                                                <span>d1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+
+                                                               class="form-control" id="dd"
+                                                               name="up_little_d1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_e1">
+                                         <span>e1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+                                                               class="form-control" id="dd"
+                                                               name="up_little_e1_rate"
+
+                                                               value=""
+
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_f1">
+                                             <span>f1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+                                                               value=""
+
+                                                               class="form-control" id="dd"
+                                                               name="up_little_f1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_g1">
+                                               <span>g1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+                                                               value=""
+
+                                                               class="form-control" id="dd"
+                                                               name="up_little_g1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_a1">
+                                              <span>a1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+
+                                                               class="form-control" id="dd"
+                                                               name="up_little_a1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_b1">
+                                              <span>b1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+
+                                                               class="form-control" id="dd"
+                                                               name="up_little_b1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+
+                                            </div>
+                                            <div class="col-sm-6" style="">
+                                                <h5 class="demo-panel-title">上键 小字组</h5>
+
+                                                <label class="checkbox" for="up_little_c">
+                                           <span>c：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               class="form-control" id="dd"
+                                                               name="up_little_c_rate"
+
+
+                                                               value=""
+
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_d">
+                                             <span>d：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                               value=""
+
+                                                               class="form-control" id="dd"
+                                                               name="up_little_d_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_e">
+                                             <span>e：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+
+                                                               value=""
+
+                                                               class="form-control" id="dd"
+                                                               name="up_little_e_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_f">
+                                          <span>f：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="up_little_f_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_g">
+                                            <span>g：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="up_little_g_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_a">
+                                   <span>a：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="up_little_a_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_b">
+                                         <span>b：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="up_little_b_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row" id="音域选择">
+                                        <div class="col-sm-12" style="padding-left:60px">
+                                            <div class="col-sm-6">
+                                                <h5 class="demo-panel-title">下键 小字一组</h5>
+
+                                                <label class="checkbox" for="down_little_c1">
+                                         <span>c1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_c1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_d1">
+                                           <span>d1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_d1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_e1">
+                                          <span>e1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_e1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_f1">
+                                           <span>f1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_f1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_g1">
+                                     <span>g1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_g1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_a1">
+                            <span>a1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_a1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_b1">
+                                        <span>b1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_b1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+
+                                            </div>
+                                            <div class="col-sm-6" style="">
+                                                <h5 class="demo-panel-title">下键 小字组</h5>
+
+                                                <label class="checkbox" for="down_little_c">
+                                    <span>c：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_c_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_d">
+                                     <span>d：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_d_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_e">
+                               <span>e：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_e_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_f">
+                                <span>f：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_f_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_g">
+                                 <span>g：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_g_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_a">
+                             <span>a：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_a_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_b">
+                               <span>b：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               value=""
+                                                               class="form-control" id="dd"
+                                                               name="down_little_b_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row col-sm-12">
+
+
+                                    </div>
+
+                                    {#添加背景图片#}
+                                    <div class="row col-sm-12">
+
+                                        <div hidden class="col-sm-6">
+                                            <span>添加关卡背景</span>
+                                            <input id="sublevel_background" name="sublevel_background" type="file">
+                                        </div>
+
+                                        {# 添加背景音乐#}
+                                        {#                                        <div class="col-sm-6">#}
+                                        {#                                            <span>添加关卡音乐</span>#}
+                                        {#                                            <input id="sublevel_backmusic" name="sublevel_backmusic" type="file">#}
+                                        {#                                        </div>#}
+                                    </div>
+
+
+                                    <div class="row">
+
+                                        <div class="col-lg-12 col-lg-offset-5">
+                                            <button type="submit" class="btn btn-primary" style="margin-top: 20px;">
+                                                保存并提交
+                                            </button>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    {#    </div> <!-- /.row -->#}
+{% endblock list_body %}
+
+
+{% block body_js %}
+
+<script src="{{ static('js/fileinput.js') }}"></script>
+<script src="{{ static('js/fileinput_locale_zh.min.js') }}"></script>
+<script src="{{ static('js/bootstrapValidator.min.js') }}"></script>
+
+
+<script type="text/javascript">
+    //初始化fileinput控件（第一次初始化）
+    function initFileInput(ctrlName, uploadUrl) {
+        var control = $('#' + ctrlName);
+        control.fileinput({
+            language: 'zh', //设置语言
+            uploadUrl: uploadUrl, //上传的地址
+            allowedFileExtensions: ['jpg', 'png', 'gif', 'mp3', 'midi'],//接收的文件后缀
+            showUpload: false, //是否显示上传按钮
+            showCaption: false,//是否显示标题
+            browseClass: "btn btn-primary", //按钮样式
+            previewFileIcon: "<i class='glyphicon glyphicon-king'></i>"
+        });
+    }
+
+    function append_valid_digital(id, st) {
+        console.log('append' + st);
+        $('#' + id).bootstrapValidator('addField', st, {
+            message: 'The filed is not valid',
+            validators: {
+                notEmpty: {
+                    message: '不能为空'
+                },
+                regexp: {           //正则校验 
+                    regexp: /^(\+|-)?[0-9][0-9]*$/,
+                    message: '请输入整数'
+                }
+            }
+        });
+    }
+    function init_valid(form_id) {
+        console.log('init valid' + form_id);
+
+        $('#' + form_id).bootstrapValidator({
+            message: 'This value is not valid',
+            feedbackIcons: {
+                /*input状态样式图片*/
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {}
+        })
+    }
+    function append_valid(id, st) {
+        console.log('append' + st);
+        $('#' + id).bootstrapValidator('addField', st, {
+            message: 'The filed is not valid',
+            validators: {
+                notEmpty: {
+                    message: '不能为空'
+                }
+            }
+        });
+    }
+    function init_validator() {
+        init_valid('index_form');
+        append_valid('index_form', 'sublevel_name');
+        append_valid_digital('index_form', 'sublevel_seq');
+        append_valid('index_form', 'sublevel_description');
+        append_valid_digital('index_form', 'sublevel_hint_rate');
+        append_valid_digital('index_form', 'sublevel_pop_interval');
+        append_valid_digital('index_form', 'sublevel_fly_time');
+        append_valid_digital('index_form', 'sublevel_level_time');
+        append_valid_digital('index_form', 'sublevel_pop_interval');
+
+    }
+
+
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        initFileInput("sublevel_background", "/User/EditPortrait");
+        initFileInput("sublevel_backmusic", "/User/EditPortrait");
+        init_validator();
+    });
+</script>
+
+<script type="text/javascript">
+    $('input[id=lefile]').change(function () {
+        $('#photoCover').val($(this).val());
+    });
+</script>
+
+
+{% endblock body_js %}

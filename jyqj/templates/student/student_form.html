@@ -1,0 +1,112 @@
+{% extends "base_form.html" %}
+
+{%block form_body%}
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    {% set messages = get_messages(request) %}
+                    {% if messages %}
+                    <div class="alert {%if messages.type==messages.INFO%}alert-danger{%else%}alert-success{%endif%} alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ messages|join('|') }}
+                    </div>
+                    {% endif %}
+                <div class="form-group">
+                    <label class="control-label col-sm-2">学员姓名:</label>
+                    <label class="control-label">{{ student.name }}</label>
+                </div>
+                    <div class="form-group">
+                    <label class="control-label col-sm-2">手机号:&nbsp;</label>
+                        <label class="control-label">{{ student.mobile }}</label>
+                </div>
+                    <div class="form-group">
+                    <label class="control-label col-sm-2">创建时间:</label>
+                        <label class="control-label">{{ student.create_time }}</label>
+                </div>
+                    <div class="form-group">
+                    <label class="control-label col-sm-2">累计获得音乐币:</label>
+                        <label class="control-label">{{ student.coin_num }}</label>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">累计完成课程数:</label>
+                        <label class="control-label">{{ student.course_nums }}</label>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">不靠谱游戏关卡:</label>
+                        <label class="control-label">{{ student.game_bkp_level }}</label>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">不靠谱游戏音乐币:</label>
+                        <label class="control-label">{{ student.game_bkp_coin_num }}</label>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">音乐气球关卡:</label>
+                        <label class="control-label">{{ student.game_ballon_level }}</label>
+                </div>
+                 <div class="form-group">
+                    <label class="control-label col-sm-2">音乐气球音乐币:</label>
+                        <label class="control-label">{{ student.game_ballon_coin_num }}</label>
+                </div>
+
+                    <div><table>
+                        <tr>
+                            <th>
+                            班级名称
+                        </th>
+                            <th>
+                            老师
+                        </th>
+                            <th>
+                            班级状态
+                        </th>
+                            <th>
+                            操作
+                        </th>
+                            <th>
+                            时间
+                        </th>
+                        </tr>
+
+                        {%for classes in  class_record%}
+                        <tr>
+                            <td width="20%">
+                                {{ classes.class_name }}
+                            </td>
+                       <td width="20%">
+                             {{ classes.teacher }}
+                       </td>
+                             <td width="20%">
+                             {{ classes.class_status }}
+                       </td>
+                             <td width="20%">
+                             {{ classes.command }}
+                       </td>
+                             <td width="20%">
+                             {{ classes.create_time }}
+                       </td>
+                        </tr>
+                        {% endfor %}
+                    </table></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% endblock form_body %}
+{% block body_js%}
+
+
+<script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+<script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+<script src="{{ static('js/hera-select2.js') }}"></script>
+{% endblock%}

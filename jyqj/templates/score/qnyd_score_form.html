@@ -1,0 +1,130 @@
+{% extends "base_form.html" %}
+
+
+{% block form_body %}
+{% macro image_template(score_image_path, score_image_name, seq) -%}
+<div class="form-group">
+        <label class="col-sm-2 control-label"></label>
+        <div class="col-sm-4">
+{{ widget_image_upload('score_image_path', score_image_path, 'score_image_name', score_image_name,None,None,None,'') }}
+    </div>
+顺序:<input type="number" name="seq" value="{{ seq }}">
+        <button type="button" class="btn btn-primary btn-image-delete">删除</button>
+    </div>
+{%- endmacro %}
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+     <div class="row">
+         <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% if form.non_field_errors() %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>{% endif %}
+
+                {% set messages = get_messages(request) %}
+                {% if messages %}
+                <div class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ messages|join('|') }}
+                </div>
+                {% endif %}
+                <div class="form-group">
+
+                    {{ form_input(form.name, "col-sm-2 control-label", "col-sm-4") }}
+
+                </div>
+                 <div class="form-group">
+                     <label class="col-sm-2 control-label"><a href="javascript:void(0)">声部：</a></label>
+                 </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">一声部:</label>{{ form_input(form.staff1_name, "col-sm-1 control-label", "col-sm-2") }}
+                    {{ form_select2(form.staff1_score, url('score:music_office_choices'), [music_office[0]],"col-sm-1 control-label", "col-sm-4",  attrs=None, ) }}
+                </div>
+                <div class="form-group">
+                   <label class="col-sm-2 control-label">二声部:</label>{{ form_input(form.staff2_name, "col-sm-1 control-label", "col-sm-2") }}
+                    {{ form_select2(form.staff2_score, url('score:music_office_choices'), [music_office[1]],"col-sm-1 control-label", "col-sm-4",  attrs=None, ) }}
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">三声部:</label>
+                    {{ form_input(form.staff3_name, "col-sm-1 control-label", "col-sm-2") }}
+                    {{ form_select2(form.staff3_score, url('score:music_office_choices'), [music_office[2]],"col-sm-1 control-label", "col-sm-4",  attrs=None, ) }}
+                </div>
+                 <div class="form-group">
+                     <label class="col-sm-2 control-label"><a href="javascript:void(0)">五线谱：</a></label>
+                 </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.xml_path, form.xml_name, None, None, None, "col-sm-2 control-label", "col-sm-4") }}
+                    </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label"><a id='btn-add-image' href="javascript:void(0)">＋添加曲谱图片</a> </label>
+                </div>
+                <div class="form-group" id="add-new-image">
+                    {%for score_image in  score_images%}
+                        {{ image_template(score_image.pic_path, score_image.pic_name, score_image.seq) }}
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                {{ form_textarea(form.description, "col-sm-2 control-label", "col-sm-8") }}
+                </div>
+                    <div class="form-group">
+                    {{ form_input_bool(form.status, "col-sm-2 control-label", "col-sm-2", "checkbox") }}
+
+                </div>
+                <div class="col-lg-12 col-lg-offset-2">
+
+                    <button type="submit" class="btn btn-primary ">保存</button>
+                </div>
+
+
+            </div>
+        </div>
+             </div>
+     </div>
+</form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+
+    <script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+    <script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+    <script src="{{ static('js/hera-select2.js') }}"></script>
+
+<script type="text/html" class="score-image-html">
+    <div class="form-group">
+        <label class="col-sm-2 control-label"></label>
+        <div class="col-sm-4">
+{{ widget_image_upload('score_image_path', '', 'score_image_name', '',None,None,None,'') }}
+    </div>
+顺序:<input type="text" name="seq">
+        <button type="button" class="btn btn-primary btn-image-delete">删除</button>
+    </div>
+</script>
+<script type="text/javascript">
+        active_valid('score_image_path');
+        active_valid('score_image_name');
+        active_valid('seq');
+
+      $(".btn-image-delete").on("click",function(){
+                        $(this).parent().remove();
+            });
+
+    $('#btn-add-image').click(function () {
+        $('#add-new-image').append($('.score-image-html').html());
+        $('.js_file_manager').off("click");
+        active_valid('score_image_path');
+        active_valid('score_image_name');
+        active_valid('seq');
+                //upload_image_version2();
+        upload_image_with_type_version2();
+        $(".btn-image-delete").on("click",function(){
+                        $(this).parent().remove();
+            });
+    });
+</script>
+
+{% endblock %}

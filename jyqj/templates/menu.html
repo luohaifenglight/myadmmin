@@ -1,0 +1,202 @@
+<!-- Left side column. contains the logo and sidebar -->
+<aside class="main-sidebar">
+
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+
+        <!-- Sidebar user panel (optional) -->
+
+        <!-- search form (Optional) -->
+        <!--<form action="#" method="get" class="sidebar-form">-->
+        <!--<div class="input-group">-->
+        <!--<input type="text" name="q" class="form-control" placeholder="Search...">-->
+        <!--<span class="input-group-btn">-->
+        <!--<button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>-->
+        <!--</span>-->
+        <!--</div>-->
+        <!--</form>-->
+        <!-- /.search form -->
+
+        <!-- Sidebar Menu -->
+        <ul class="sidebar-menu">
+            <li class="header">导航</li>
+            <!-- Optionally, you can add icons to the links -->
+            <li><a href="/accounts/index/"><i class="fa fa-home"></i> <span>首页</span></a></li>
+            <!--<li class="treeview">-->
+            <!--<a href="#" class="active"><i class="fa fa-link"></i> <span>simple管理</span> <i class="fa fa-angle-left pull-right"></i></a>-->
+            <!--<ul class="treeview-menu">-->
+            <!--<li><a href="/simple/simple_list/">simple详情</a></li>-->
+            <!--</ul>-->
+            <!--</li>-->
+            {% if has_perms(request.user, ['accounts.can_view', 'role.can_view', 'opreationlog.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>用户权限管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        {% if has_perms(request.user, ['accounts.can_view']) %}
+                            <li><a href="/accounts/admin/">管理员详情</a></li>
+                        {% endif %}
+                        {% if has_perms(request.user, ['role.can_view']) %}
+                            <li><a href="/accounts/role/">角色管理</a></li>
+                        {% endif %}
+                        {% if has_perms(request.user, ['opreationlog.can_view']) %}
+                            <li><a href="/operationlog/operationlog_list/">操作日志</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
+            {% if has_perms(request.user, ['institution.can_view', 'teacher.can_view', 'expreiment_student.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>机构管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        {% if has_perms(request.user, ['institution.can_view']) %}
+                            <li><a href="/institution/institution_list/">机构详情</a></li>
+                        {% endif %}
+                        {% if has_perms(request.user, ['expreiment_student.can_view']) %}
+                            <li><a href="/institution/expreiment_list/">体验账号详情</a></li>
+                        {% endif %}
+                        {% if has_perms(request.user, ['teacher.can_view']) %}
+                            <li><a href="/teacher/teacher_list/">机构教师</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
+
+            {% if has_perms(request.user, ['musicballoon.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>音乐气球</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/musicballoon/level_manager/">关卡管理</a></li>
+
+                    </ul>
+                </li>
+            {% endif %}
+            {% if has_perms(request.user, ['bkp_pic.can_view', 'bkp_target.can_view', 'bkp_level.can_view' ]) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>不靠谱管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        {% if has_perms(request.user, ['bkp_pic.can_view']) %}
+                            <li><a href="/bkp/pic/bkp_pic_list">图片管理</a></li>
+                        {% endif %}
+                        {% if has_perms(request.user, ['bkp_target.can_view']) %}
+                            <li><a href="/bkp/target/bkp_target_list">目标录音和解析</a></li>
+                        {% endif %}
+                        {% if has_perms(request.user, ['bkp_level.can_view']) %}
+                            <li><a href="/bkp/level/bkp_level_list">关卡管理</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
+
+
+
+            {% if has_perms(request.user, ['class.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>班级管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/class/class_list/">班级详情</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+            {% if has_perms(request.user, ['student.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>学员管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/student/student_list/">学员详情</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+
+
+            <!-- /.sidebar-menu -->
+
+            <!-- /.sidebar -->
+            {% if has_perms(request.user, ['video.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>视频管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/video/video_list/">视频详情</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+            {% if has_perms(request.user, ['score.can_view','hzq_score.can_view', 'score_optional.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>曲库管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        {% if has_perms(request.user, ['score.can_view']) %}
+                            <li><a href="/score/score_list/">曲库详情</a></li>{% endif %}
+
+
+                        {% if has_perms(request.user, ['hzq_score.can_view']) %}
+                            <li><a href="/hzqscore/hzq_score_list/">合奏组合详情</a></li>{% endif %}
+
+
+                        {% if has_perms(request.user, ['score_optional.can_view']) %}
+                            <li><a href="/score_optional/score_optional_list/">选弹曲库详情</a></li>{% endif %}
+                    </ul>
+                </li>
+
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>欣赏曲库管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+
+                        {% if has_perms(request.user, ['score_optional.can_view']) %}
+                            <li><a href="/score_enjoy/score_enjoy_list/">欣赏曲目列表</a></li>{% endif %}
+
+                        {% if has_perms(request.user, ['score_optional.can_view']) %}
+                            <li><a href="/score_enjoy/score_enjoy_manage_list/">欣赏曲库管理</a></li>{% endif %}
+
+                    </ul>
+                </li>
+
+            {% endif %}
+
+            {% if has_perms(request.user, ['unit.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>单元管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/unit/unit_list/">单元详情</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+            {% if has_perms(request.user, ['course.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>课程管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/course/course_list/">课程详情</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+            {% if has_perms(request.user, ['course_system.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>课程体系管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/course_system/course_system_list/">课程课程体系详情</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+            {% if has_perms(request.user, ['teacherversion.can_view']) %}
+                <li class="treeview">
+                    <a href="#" class="active"><i class="fa fa-link"></i> <span>老师端APP管理</span> <i
+                            class="fa fa-angle-left pull-right"></i></a>
+                    <ul class="treeview-menu">
+                        <li><a href="/teacherversion/teacherversion_list/">老师端APP详情</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+        </ul><!-- /.sidebar-menu -->
+    </section>
+    <!-- /.sidebar -->
+
+</aside>

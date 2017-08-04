@@ -1,0 +1,212 @@
+{% extends "base_list.html" %}
+
+{% block more_filter -%}
+<div class="form-group">
+    <label class="col-sm-2 control-label">分类:</label>
+    <div class="col-sm-2">
+    <select id="type" name="type" class="form-control">
+        <option value="">全部</option>
+        <option value="0">导入/转场</option>
+        <option value="1">乐理讲解</option>
+        <option value="2">音乐欣赏</option>
+        <option value="3">教谱</option>
+        <option value="4">教奏</option>
+        <option value="5">示范</option>
+        <option value="6">跟唱</option>
+        <option value="7">教唱</option>
+
+
+    </select>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">状态:</label>
+    <div class="col-sm-2">
+    <select id="status" name="status" class="form-control">
+        <option value="">全部</option>
+        <option value="0">未发布</option>
+        <option value="1">已发布</option>
+    </select>
+    </div>
+</div>
+{%- endblock more_filter %}
+
+{% block list_body %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row mbh">
+
+                    <div class="col-sm-12 dataTables_filter">
+                        <a href="{{ url('video:video_create') }}" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            新增
+                        </a>
+                    </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="dataTables">
+                            <thead>
+                            <tr>
+                                <th>视频ID</th>
+                                <th>分类</th>
+                                <th>视频名称</th>
+                                <th>视频大小</th>
+                                <th>时长</th>
+                                <th>格式</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="id-list">
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.dataTable_wrapper -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+    </div> <!-- /.row -->
+{% endblock list_body %}
+
+{% block body_js %}
+<script type="text/javascript">
+     function reset_status(id) {
+        bootbox.confirm({
+            size: "small",
+            title: "发布状态",
+            message: "确认更改",
+            callback: function (result) {
+                if(result){
+                    $.ajax({
+                        type: "POST",
+                        url: "/video/reset_status/",
+                        data: {
+                            "id": id,
+                            "csrfmiddlewaretoken": "{{ csrf_token }}",
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            search();
+                        },
+                    });
+                }
+            }
+        });
+    }
+
+
+
+    function delete_video(id) {
+        bootbox.confirm({
+            size: "small",
+            title: "发布状态",
+            message: "确认更改",
+            callback: function (result) {
+                if(result){
+                    $.ajax({
+                        type: "POST",
+                        url: "/video/video_delete/",
+                        data: {
+                            "id": id,
+                            "csrfmiddlewaretoken": "{{ csrf_token }}",
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            if(data.status){
+                                search();
+                            }else{
+                                alert(data.message);
+                            }
+                        },
+                    });
+                }
+            }
+        });
+    }
+$(document).ready(function () {
+    var table = $('#dataTables').dataTable({
+        "dom": 'ltpr',
+        "language": {
+            "url": "{{ static('lib/js/dataTable.Chinese.json') }}"
+        },
+        "responsive": true,
+        "lengthChange": false,
+        "serverSide": true,
+        "ajax": {
+            url: "/video/datatable/",
+            type: "POST",
+            data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+        },
+        "columns": {{ list_fields.to_json()|safe }},
+        "searchCols": [
+            {% for col in list_fields.to_list() -%}
+            {% if col.name in searches -%}
+            {{ searches[col.name]|jsonify|safe }},
+            {% else %}
+            null,
+            {%- endif %}
+            {%- endfor %}
+        ],
+        "columnDefs": [
+            {
+                "targets": [7],
+                 "render": function ( data, type, full, meta ) {
+                    var s = full.status;
+                    var status_show = '发布';
+                    if (s=='已发布'){
+                        status_show = '取消发布';
+                    }
+                     return '<a href="/video/video_list/video_modify/'+data+'">编辑／查看</a>&nbsp;' +
+                            '<a href="#" onclick="delete_video('+data+')">删除</a>&nbsp;' +
+                         '<a href="#" onclick="reset_status('+data+')">'+ status_show+'</a>&nbsp;';
+                },
+            },
+        ],
+        "order": [[0, 'desc']],
+        "processing": true,
+        "deferRender": true,
+        {#
+        {% if not searches -%}
+        "deferLoading": true,
+        {%- endif %}
+        #}
+        "pageLength": 10,
+    });
+
+
+    $('#function').change(function(){
+        var $selAll = $('#select-allpage');
+        if($(this).val()=='set_refunded'){
+            $selAll.removeAttr('checked');
+            $selAll.attr('disabled','disabled');
+        }else{
+            $('#select-allpage').removeAttr('disabled');
+        }
+    });
+    //=== search click ===
+    $("#id-search-btn").on("keyup click", function () {
+        search();
+    });
+
+    $("#id-th-checkbox").on("change", function () {
+        $("#id-list").find("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    });
+
+
+    $("#select-allpage").on("click", function () {
+        $("#id-th-checkbox").prop("checked", $("#select-allpage").prop("checked"));
+        $("#id-list").find("input[type=checkbox]").prop("checked", $("#select-allpage").prop("checked"));
+    });
+
+});
+</script>
+
+{% endblock %}

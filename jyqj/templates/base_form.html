@@ -1,0 +1,611 @@
+{% extends "base.html" %}
+
+{% block csscontent %}
+<link href="{{ static('lib/css/select2.min.css') }}" rel="stylesheet">
+<link href="{{ static('css/bootstrap-markdown.min.css') }}" rel="stylesheet">
+<link href="{{ static('css/bootstrapValidator.min.css') }}" rel="stylesheet">
+<link href="{{ static('css/main.css') }}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+<section class="content-header">
+    <h1>
+        {{title}}
+        <small><a href='#' onClick="go_back_list();">返回</a>>></small>
+         <small></small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> {{title}}</a></li>
+        <li class="active">{{title}}</li>
+    </ol>
+</section>
+{% block form_body %}
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% if form.non_field_errors() %}
+                    <div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>
+                    {% endif %}
+
+                    {% set messages = get_messages(request) %}
+                    {% if messages %}
+                    <div class="alert alert-success alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ messages|join('|') }}
+                    </div>
+                    {% endif %}
+
+                    {% block form_detail %}{% endblock form_detail %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-lg-offset-1">
+            {% block new_button %}
+            <button type="submit" class="btn btn-primary" name="_new" value="1">保存并新增</button>
+            {% endblock new_button %}
+            <button type="submit" class="btn btn-primary">{% block save_text %}保存{% endblock save_text %}</button>
+        </div>
+    </div>
+</form>
+{% endblock  form_body%}
+{% endblock content %}
+{% block jscontent %}
+<script src="{{ static('plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<!-- AdminLTE App -->
+<script src="{{ static('plugins/datatables/dataTables.bootstrap.min.js') }}"></script>
+<script src="{{ static('plugins/slimScroll/jquery.slimscroll.min.js') }}"></script>
+<script src="{{ static('plugins/fastclick/fastclick.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+<script src="{{ static('js/hera-list.js') }}"></script>
+<script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/to-markdown.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/bootstrap-markdown.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/bootstrap-markdown.zh.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/bootstrapValidator.min.js') }}"></script>
+<script type="text/javascript">
+    function go_back_list() {
+        var current_href = window.location.href;
+        var is_create = current_href.indexOf('create');
+        var is_modify = current_href.indexOf('modify');
+        var pre_href = '';
+        var suffer_href = '';
+        if (is_create!=-1){
+            pre_href = current_href.split('create')[0];
+            suffer_href = current_href.split('create')[1].split('/')[1] || '';
+        }
+        if(is_modify!=-1){
+            pre_href = current_href.split('modify')[0];
+            suffer_data = current_href.split('modify')[1].split('/').length;
+            var page = current_href.split('modify')[1].split('=')[1]|0;
+            suffer_href = '?dt_page=' + page;
+            if(suffer_data>3){
+                suffer_href = current_href.split('modify')[1].split('/')[1] || '';
+            }
+
+        }
+        if (pre_href){
+            var chengshuai_rule_list = ['bkp', 'score_enjoy'];
+            var bkp = -1;
+            for(var i=0; i<chengshuai_rule_list.length; i++){
+                bkp = pre_href.indexOf(chengshuai_rule_list[i]);
+                if (bkp!=-1){
+                    break;
+                }
+            }
+            if (bkp!=-1){
+                pre_href = pre_href + 'list' + '/' + suffer_href;
+            }
+            else{
+                pre_href = pre_href.substring(0, pre_href.lastIndexOf('/') + 1) + '/' + suffer_href;
+            }
+            console.log(pre_href)
+            window.location.href = pre_href;
+        }
+    }
+     function active_valid(st) {
+        $('form').bootstrapValidator('addField',st,{
+//        live: 'disabled',
+
+                message: 'The filed is not valid',
+                validators: {
+                    notEmpty: {
+                        message: '不能为空'
+
+                    }
+        }
+    });
+    }
+
+     {%if form%}
+    $('form').bootstrapValidator({
+//        live: 'disabled',
+        message: 'This value is not valid',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+
+
+
+
+            {% for b_filed, b_v in form.declared_fields.items() %}
+    {%if b_v.required %}
+     {%if b_filed=='mobile' %}
+      {{ b_filed }}: {
+                message: 'The filed is not valid',
+                validators: {
+                    notEmpty: {
+                        message: '不能为空'
+                    },
+                    regexp: {
+                        regexp: /^1\d{10}$/,
+                        message: '不可接受的手机号码'
+                    },
+                }
+            },
+     {%elif b_filed in ['old_password', 'new_password', 'review_password']%}
+         {{ b_filed }}: {
+                message: 'The filed is not valid',
+                validators: {
+                    notEmpty: {
+                        message: '不能为空'
+                    },
+                    regexp: {
+                        regexp: /[0-9a-zA-Z]{6,18}/,
+                        message: '6-18字母或者数字组合'
+                    },
+                }
+            },
+
+         {% else %}
+            {{ b_filed }}: {
+                message: 'The filed is not valid',
+                validators: {
+                    notEmpty: {
+                        message: '不能为空'
+                    },
+                }
+            },
+     {%endif%}
+    {%endif%}
+            {%endfor%}
+
+        }
+    });
+     {%endif%}
+</script>
+{% block body_js %}
+{% endblock %}
+{% block end_js %}
+    <script type="text/javascript">
+ {%if all_ready_only %}
+     $('form').find(':input').each(function () {
+        $(this).attr('disabled', 'disabled');
+        });
+     $('form').find(':checkbox').each(function () {
+        $(this).attr('disabled', 'disabled');
+        });
+     $('form').find(':radio').each(function () {
+        $(this).attr('disabled', 'disabled');
+        });
+     $('form').find(':submit').each(function () {
+        $(this).remove();
+        });
+     $('form').find('a').each(function () {
+        $(this).unbind('click');
+        });
+     </script>
+     {%endif%}
+{% endblock %}
+{% endblock %}
+
+
+{% macro field_label(field, label_class='',colon_show=True) -%}
+<label{% if label_class %} class="{{ label_class }}"{% endif %} for="{{ field.id_for_label }}">{% if field.field.required %}
+<span class="text-danger">*</span> {% endif %}{{ field.label }}{% if colon_show %}:{% endif %}</label>
+{%- endmacro %}
+
+{% macro input_widget(type="text", name="", value="", class="", id="", placeholder="", attrs=None, kwargs=None) -%}
+<input class="{{ class }}" type="{{ type }}" id="{{ id }}" name="{{ name }}" value="{{ value }}"
+       placeholder="{{ placeholder }}" {% if attrs %}{{
+       attrs|join(" ") }}{% endif %} {% if kwargs %}{% for k, v in kwargs.items() %} {{ k }}="{{ v }}"{% endfor %}{% endif %}{% if name in readonly_fields or 'all' in readonly_fields  or 'all' in readonly_fields %}readonly{% endif %}>
+{%- endmacro %}
+
+{% macro field_error(field) -%}
+{% if field.errors %}
+<p class="help-block has-error">{{ field.errors|join('|') }}</p>
+{% endif %}
+{%- endmacro %}
+
+{% macro form_input(field, label_class='', input_class='', input_type='text', placeholder="", attrs=None, kwargs=None) -%}
+{% if field.html_name not in hide_fields %}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    {% if input_type == "date" %}
+    {% if kwargs is none %}
+    {% set kwargs = {'max': "9999-12-31"} %}
+    {% elif 'max' not in kwargs %}
+    {% set _ = kwargs.update({'max': "9999-12-31"}) %}
+    {% endif %}
+    {% endif %}
+    {{ input_widget(input_type, field.html_name, field.value() if field.value() is not none else '', "form-control",
+    field.id_for_label, placeholder|default(field.help_text, true), attrs=attrs, kwargs=kwargs) }}
+    {{ field_error(field) }}
+</div>
+{% endif %}
+{%- endmacro %}
+
+{% macro form_input_datetime(field, label_class='', input_class='', date_format='', placeholder='', attrs=None, kwargs=None) -%}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    {% if kwargs is none %}
+    {% set kwargs = {'min': "1900-01-01 00:00:00", 'max': "2099-12-31 23:59:59"} %}
+    {% elif 'min' not in kwargs %}
+    {% set _ = kwargs.update({'min': "1900-01-01 00:00:00"}) %}
+    {% elif 'max' not in kwargs %}
+    {% set _ = kwargs.update({'max': "2099-12-31 23:59:59"}) %}
+    {% endif %}
+    {% if attrs is none %}
+    {% set attrs = ["readonly"] %}
+    {% else %}
+    {% set _ = attrs.append("readonly") %}
+    {% endif %}
+    <div class="form-inline">
+        {{ input_widget("text", field.html_name, field.value()|default('', true), "form-control", field.id_for_label,
+        placeholder|default(date_format, true), attrs=attrs, kwargs=kwargs) }}
+        {% if field.html_name not in readonly_fields and "all" not in readonly_fields%}
+        {# 时间选择框可以禁用 #}
+        {% if 'date_pick_readonly' not in attrs %}
+        <span class="fa fa-calendar fa-lg" onclick="laydate({
+                    elem: '#{{ field.id_for_label }}',
+                    format: '{{ date_format }}',
+                    istime: true,
+                    isclear: true,
+                    istoday: true,
+                    issure: true,
+                    festival: true,
+                    min: '{{ kwargs['min'] }}',
+                    max: '{{ kwargs['max'] }}',
+                    fixed: false,
+                    zIndex: 99999999,
+                    choose: function(dates){}
+                });">
+        </span>
+        {% endif %}
+
+        {% endif %}
+    </div>
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+
+{% macro form_input_bool(field, label_class='', input_class='', input_type='checkbox', attrs=None) -%}
+<label{% if label_class %} class="{{ label_class }}"{% endif %}>{% if field.field.required %}<span
+        class="text-danger">*</span> {% endif %}{{ field.label }}:</label>
+<label class="checkbox-inline {{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <input class="" type="{{ input_type }}" id="{{ field.id_for_label }}" name="{{ field.html_name }}" {% if input_type
+           in ['radio', 'checkbox'] and field.value() %} checked="checked"{% endif %} placeholder="{{ field.help_text
+    }}" {% if attrs %}{{ attrs|join(" ") }}{% endif %} {% if field.html_name in readonly_fields or 'all' in
+    readonly_fields %}disabled><input type="hidden" name="{{ field.html_name }}" value="{{ field.value() }}" {% endif
+                                      %}>
+    {{ field_error(field) }}
+</label>
+{%- endmacro %}
+
+{% macro form_select(field, label_class='', input_class='', attrs=None, colon_show=True) -%}
+{{ field_label(field, label_class, colon_show) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}"
+            placeholder="{{ field.help_text }}" {% if attrs %}{{ attrs|join(" ") }}{% endif %}{% if field.html_name in
+    readonly_fields or 'all' in readonly_fields %}disabled{% endif %}>
+    {% for val, name in field.field.choices %}
+    <option value="{{ val }}" {% if field.value()|string== val|string %} selected="selected" {% endif %}>{{ name }}
+    </option>
+    {% endfor %}
+    </select>
+    {% if field.html_name in readonly_fields or 'all' in readonly_fields %}<input type="hidden"
+                                                                                  name="{{ field.html_name }}"
+                                                                                  value="{{ field.value() }}">{% endif
+    %}
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+
+{% macro form_textarea(field, label_class='', input_class='',row=5, attrs=None) -%}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <textarea class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" rows={{ row }}
+              placeholder="{{ field.help_text }}" {% if attrs %}{{ attrs|join(" ") }}{% endif %}{% if field.html_name in
+    readonly_fields or 'all' in readonly_fields %}readonly{% endif %}>{{ field.value() }}</textarea>
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+
+{% macro form_textarea_markdown(field, label_class='', input_class='',row=5, attrs=None) -%}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <textarea class="form-control" data-provide="markdown" id="{{ field.id_for_label }}" name="{{ field.html_name }}"
+              rows={{ row }} placeholder="{{ field.help_text }}" {% if attrs %}{{ attrs|join(" ") }}{% endif %}{% if
+    field.html_name in readonly_fields or 'all' in readonly_fields %}readonly{% endif %}>{{ field.value()|safe
+    }}</textarea>
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+
+
+{% macro widget_image_upload(input_name, image_url,input_image_name , image_name, thumb, size, time_l, placeholder='', has_delete=False, u_type=True, file_type='all', accpet_type="image/*", kwargs=None) %}
+{# 上传组件 #}
+<table class="file-block js_file_manager">
+    <input type="hidden" class="file_type" value="{{ file_type }}"/>
+    <tr>
+        <td class="js_td_show_thumb" style="display:{%if u_type%} none{%else%} block{%endif%}">
+            <a href="{% if image_url %}{{ image_url }}{%endif%}" target="_blank" class="js_file_raw">
+                <img src="{% if thumb %}{{ thumb.value() }}{% endif%}" alt="" class="js_file_thumb"/>
+                {% if thumb %}
+                <input type="hidden" class="form-control js_save_thumb" name="{{ thumb.html_name }}"
+                       value="{{ thumb.value() }}"/>
+                {% endif %}
+                {% if size %}
+                <input type="hidden" class="form-control js_save_size" name="{{ size.html_name }}"
+                       value="{{ size.value() }}"/>
+                {% endif %}
+                {% if time_l %}
+                <input type="hidden" class="form-control js_save_time_l" name="{{ time_l.html_name }}"
+                       value="{{ time_l.value() }}"/>
+                {% endif %}
+            </a>
+        </td>
+        <td class="js_td_show_input" style="display: {%if u_type%} block{%else%} none{%endif%}">
+            {% if input_name not in readonly_fields and 'all' not in readonly_fields %}
+            <div>
+                <input type="hidden" class="form-control js_file_url" name="{{ input_name }}" value="{{ image_url }}"
+                       placeholder="{{ placeholder|default(" 请输入图片地址或上传图片", true) }}" {% if kwargs %}{% for k, v in
+                kwargs.items() %} {{ k }}="{{ v }}"{% endfor %}{% endif %}>
+                <span class="input-group-btn" style="display: none">
+                    <button class="btn btn-default js_file_update" type="button">替换</button>
+                </span>
+                <input type="text" class="js_file_a" name="{{ input_image_name }}" value="{{ image_name }}"
+                       readonly="readonly"/>
+            </div>
+        </td>
+        <td class="file-block-btn">
+            <div class="file-block-btn-group">
+                <button class="btn btn-primary js_file_upload" type="button">上传</button>
+                <input class="js_file_upload" type="file" name="file" />
+            </div>
+        </td>
+        <td class="file-block-btn">
+            {% if has_delete %}
+            <button class="btn btn-danger js_file_del" type="button">删除</button>
+            {% endif %}
+            {% else %}
+            <input type="url" class="form-control js_file_url" name="{{ input_name }}" value="{{ image_url }}"
+                   placeholder="{{ placeholder|default(" 请输入图片地址或上传图片", true) }}" readonly>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+{% endmacro %}
+
+
+{% macro form_input_image(field, filed_name, thumb=None, size=None, time_l=None, label_class='', input_class='', input_type='text',  placeholder="", has_delete=False,  u_type=True,  file_type="all", accpet_type="image/*", attrs=None, kwargs=None) %}
+{# 图片的form表单组件 #}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    {{ widget_image_upload(field.html_name, field.value(), filed_name.html_name,
+    filed_name.value(),thumb,size,time_l,placeholder|default(field.help_text, true), has_delete, u_type, file_type) }}
+    {{ field_error(field) }}
+</div>
+{% endmacro %}
+
+{% macro label_static(name, value, label_class='', static_class='', field=None) -%}
+<label class="{{ label_class }} control-label">{{ name }}</label>
+<div class="{{ static_class }}">
+    <p class="form-control-static">{{ value|safe }}</p>
+    <input type="hidden" {% if field %}id="{{ field.id_for_label }}" name="{{ field.html_name }}" {% endif %}
+           value="{{ value|safe }}">
+</div>
+{%- endmacro %}
+
+{% macro label_static_checkbox(name, value, label_class='', static_class='') -%}
+<label class="{{ label_class }} control-label">{{ name }}</label>
+<div class="{{ static_class }}">
+    <p class="form-control-static"><input type="checkbox" disabled="disabled" {% if value %} checked="checked" {% endif
+                                          %}></p>
+</div>
+{%- endmacro %}
+
+{% macro label_static_link(name, value, linkurl, label_class='', static_class='') -%}
+<label class="{{ label_class }} control-label">{{ name }}</label>
+<div class="{{ static_class }}">
+    <p class="form-control-static"><a target="_blank" href="{{ linkurl }}">{{ value|safe }}</a></p>
+</div>
+{%- endmacro %}
+
+{% macro form_label_static(field, label_class='', static_class='') -%}
+{{ label_static(field.label, field.value(), label_class, static_class, field) }}
+{%- endmacro %}
+
+{% macro form_label_static_link(field, linkurl, label_class='', static_class='') -%}
+{{ label_static_link(field.label, field.value(), linkurl, label_class, static_class) }}
+{%- endmacro %}
+
+{% macro form_select2(field, ajax_url, selected_options,label_class='', input_class='', attrs=None, multiple=false) -%}
+{# form-select #}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <select class="form-control select2-remote{% if multiple %}-multiple{% endif %}" id="{{ field.id_for_label }}"
+            name="{{ field.html_name }}" {% if multiple %}multiple="multiple" {% endif %}
+            data-ajax--url="{{ ajax_url }}" data-allow-clear="true" {% if field.html_name in readonly_fields or 'all' in
+    readonly_fields %}disabled{% endif %} data-placeholder="-----" {{attrs}}>
+    {% if field.value() %}
+    {% for opt in selected_options %}
+    <option value="{{ opt.id }}" selected="selected">{{ opt.text }}</option>
+    {% endfor %}
+    {% endif %}
+    </select>
+    {% if field.html_name in readonly_fields or 'all' in readonly_fields %}
+    {% if isinstance(field.value(), list) %}
+    {% for val in field.value() %}
+    <input type="hidden" name="{{ field.html_name }}" value="{{ val }}">
+    {% endfor %}
+    {% else %}
+    <input type="hidden" name="{{ field.html_name }}" value="{{ field.value() or '' }}">
+    {% endif %}
+    {% endif %}
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+
+{% macro form_radio(field, label_class='', input_class='', attrs=None) -%}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <div class="radio" id="{{ field.id_for_label }}" name="{{ field.html_name }}">
+        {% for val, name in field.field.choices %}
+        <label class="radio-inline">
+            <input type="radio" id="{{ field.id_for_label }}_{{ val }}" name="{{ field.html_name }}" value="{{ val }}"
+                   {% if val== field.value() %} checked {% endif %} {% if field.html_name in readonly_fields or 'all' in
+            readonly_fields %} disabled {%endif%}>{{ name }}</input>
+        </label>
+        {% endfor %}
+    </div>
+    {% if field.html_name in readonly_fields or 'all' in readonly_fields %}<input type="hidden"
+                                                                                  name="{{ field.html_name }}"
+                                                                                  value="{{ field.value() }}">{% endif
+    %}
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+
+
+{% macro widget_image_upload_with_type(input_name, image_url, placeholder='', has_delete=False, kwargs=None, img_type='' ) %}
+{# 图片上传组件 #}
+<table class="file-block js_file_manager_with_type">
+    <tr>
+        <td>
+            <a href="{{ image_url|imgraw }}" target="_blank" class="js_file_raw">
+                <img src="{{ image_url|imgthumb }}" alt="" class="js_file_thumb"/>
+            </a>
+        </td>
+        <td>
+            {% if input_name not in readonly_fields and 'all' not in readonly_fields %}
+            <div class="input-group">
+                <input type="url" class="form-control js_file_url" name="{{ input_name }}" value="{{ image_url }}"
+                       placeholder="{{ placeholder|default(" 请输入图片地址或上传图片", true) }}" {% if kwargs %}{% for k, v in
+                kwargs.items() %} {{ k }}="{{ v }}"{% endfor %}{% endif %}>
+                <span class="input-group-btn">
+                    <button class="btn btn-default js_file_update" type="button">替换</button>
+                </span>
+            </div>
+        </td>
+        <td class="file-block-btn">
+            <div class="file-block-btn-group">
+                <button class="btn btn-primary js_file_upload" type="button">上传</button>
+                <input class="js_file_upload" type="file" name="file" accept="image/*" img_type="{{ img_type }}"/>
+            </div>
+        </td>
+        <td class="file-block-btn">
+            {% if has_delete %}
+            <button class="btn btn-danger js_file_del" type="button">删除</button>
+            {% endif %}
+            {% else %}
+            <input type="url" class="form-control js_file_url" name="{{ input_name }}" value="{{ image_url }}"
+                   placeholder="{{ placeholder|default(" 请输入图片地址或上传图片", true) }}" readonly>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+{% endmacro %}
+
+
+{% macro form_input_image_with_type(field, label_class='', input_class='', input_type='text', placeholder="", has_delete=False, attrs=None, kwargs=None, img_type='') %}
+{# 图片的form表单组件(上传图片类型) #}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    {{ widget_image_upload_with_type(field.html_name, field.value(), placeholder|default(field.help_text, true),
+    has_delete, img_type=img_type) }}
+    {{ field_error(field) }}
+</div>
+{% endmacro %}
+
+
+{% macro form_input_rang(label_name='',field1='',field2='',end='',input_class='',field1_class='',field2_class='')%}
+<div class="{{ input_class }}">
+    <label>{{label_name}}</label>
+
+    <input class="{{field1_class}}" type="text" name="{{ field1.html_name }}"
+           value="{{ field1.value() if field1.value() is not none else '' }}" id="{{ field1.id_for_label }}"
+           placeholder="{{ placeholder|default(field1.help_text, true) }}" {% if field1.html_name in readonly_fields or
+    'all' in readonly_fields %}readonly{% endif %}>
+    <label>-</label>
+    <input class="{{field2_class}}" type="text" name="{{ field2.html_name }}"
+           value="{{ field2.value() if field2.value() is not none else '' }}" id="{{ field2.id_for_label }}"
+           placeholder="{{ placeholder|default(field2.help_text, true) }}" {% if field2.html_name in readonly_fields or
+    'all' in readonly_fields %}readonly{% endif %}>
+    <label>{{end}}</label>
+</div>
+{% endmacro %}
+
+{% macro searchable_city(field, provices, label_class='',input_class='')%}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <select id='custom-headers' multiple='multiple' class="searchable" id="{{ field.id_for_label }}"
+            name="{{ field.html_name }}">
+        {% for province in provinces %}
+        <optgroup label="{{ province.name }}">
+            {% for city in province.city %}
+            {% if field.value() and city.id in field.value() %}
+            <option value="{{ city.id }}" selected="selected">{{ city.text }}</option>
+            {% else %}
+            <option value="{{ city.id }}">{{ city.text }}</option>
+            {% endif %}
+            {% endfor %}
+        </optgroup>
+        {% endfor %}
+    </select>
+    {{ field_error(field) }}
+</div>
+{% endmacro %}
+
+{% macro form_input_safe(field, label_class='', input_class='', input_type='text', placeholder="", attrs=None, kwargs=None) -%}
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+    {% if input_type == "date" %}
+    {% if kwargs is none %}
+    {% set kwargs = {'max': "9999-12-31"} %}
+    {% elif 'max' not in kwargs %}
+    {% set _ = kwargs.update({'max': "9999-12-31"}) %}
+    {% endif %}
+    {% endif %}
+    {{ input_widget(input_type, field.html_name, field.value()|safe if field.value() is not none else '',
+    "form-control", field.id_for_label, placeholder|default(field.help_text, true), attrs=attrs, kwargs=kwargs) }}
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+{% macro form_keyboard(field, label_class='', input_class='', input_type='checkbox', attrs=None) -%}
+<label{% if label_class %} class="{{ label_class }}"{% endif %}>{% if field.field.required %}<span
+        class="text-danger">*</span> {% endif %}{{ field.label }}:</label>
+<label class="checkbox-inline {{ input_class }}{% if field.errors %} has-error{% endif %}">
+    <input class="" type="{{ input_type }}" id="{{ field.id_for_label }}" {% if field.value()[0]=='1' %}
+           checked="checked" {% endif %} placeholder="{{ field.help_text }}" {% if attrs %}{{ attrs|join(" ") }}{% endif
+    %} {% if field.html_name in readonly_fields or 'all' in readonly_fields %}disabled><input type="hidden"
+                                                                                              name="{{ field.html_name }}"
+                                                                                              class='input-keyboard'
+                                                                                              value="{{ field.value() }}"
+                                                                                              {%else%}><input
+        type="hidden" name="{{ field.html_name }}" class='input-keyboard' value="{{ field.value() }}" {% endif %}>
+    上键盘
+</label>
+
+<label class="checkbox-inline {{ input_class }}"><input type="checkbox" {% if field.value()[1]=='1' %} checked="checked"
+                                                        {% endif %}>下键盘</label>
+<label class="checkbox-inline {{ input_class }}"><input type="checkbox" {% if field.value()[2]=='1' %} checked="checked"
+                                                        {% endif %}>脚键盘</label>
+{%- endmacro %}

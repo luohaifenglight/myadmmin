@@ -1,0 +1,103 @@
+{% extends "base_form.html" %}
+
+{% block form_body %}
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+     <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% if form.non_field_errors() %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>{% endif %}
+
+                {% set messages = get_messages(request) %}
+                {% if messages %}
+                <div class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ messages|join('|') }}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                        {{ form_input(form.section_name, "col-sm-2 control-label", "col-sm-4") }}
+                    </div>
+                <div class="form-group" id="keyboard-d">
+                        {{ form_select(form.keyboard, "col-sm-2 control-label", "col-sm-4", attrs=None, ) }}
+                    </div>
+                <div class="form-group">
+                        {{ form_select2(form.video, url('video:choices'), select_video_options,"col-sm-2 control-label", "col-sm-4", attrs=None) }}
+                        {{ form_select2(form.video_segment, url('video:segment_choices'), select_video_segment_options,"col-sm-2 control-label", "col-sm-4", attrs=None) }}
+                    </div>
+                <div class="form-group">
+                        {{ form_select2(form.score, url('score:music_all_choices'), select_score_options,"col-sm-2 control-label", "col-sm-4", attrs=None) }}
+                        {{ form_select2(form.score_segment, url('score:segment_choices'), select_score_segment_options,"col-sm-2 control-label", "col-sm-4", attrs=None) }}
+                    </div>
+                <div class="form-group">
+                        {{ form_input(form.tempo, "col-sm-2 control-label", "col-sm-4") }}
+                    </div>
+                <div class="col-lg-12 col-lg-offset-2">
+
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+
+
+            </div>
+        </div>
+     </div>
+
+</form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+
+    <script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+    <script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+    <script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/javascript">
+    function set_attr(class_type) {
+        var video_value = $('#id_'+class_type).val();
+    $('#id_'+class_type+'_segment').attr("data-ajax--url", "/"+class_type+"/segment_choices/" + "?"+class_type+"=" + video_value);
+    $('#id_'+class_type+'_segment').select2({
+    minimumInputLength: 0,
+    ajax: {
+        url: $(this).attr("data-ajax--url"),
+        dataType: "json",
+        data: function (params) {
+            var result_value = {
+                q: params.term,
+                page: params.page,
+            };
+            result_value[class_type] = video_value;
+            return result_value
+        },
+        processResults: function (data, params) {
+            var num = data.num;
+            params.page = params.page || 1;
+            var more = data.results.length == num;
+            //var more = (data.page * num) < data.total_count;
+            data.pagination = {more: more};
+            return data;
+        },
+        cache: true
+    },
+});
+    }
+$(document).ready(function () {
+    set_attr('video');
+    set_attr('score');
+    $('#id_video').on("change", function (e) {
+    set_attr('video');
+    $('#id_video_segment').val(null).trigger("change");
+})
+    $('#id_score').on("change", function (e) {
+    set_attr('score');
+    $('#id_score_segment').val(null).trigger("change");
+
+})
+})
+
+</script>
+{% endblock %}

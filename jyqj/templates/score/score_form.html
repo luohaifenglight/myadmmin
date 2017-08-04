@@ -1,0 +1,293 @@
+{% extends "base_form.html" %}
+
+{% macro segment_template(start, end, segment, lable_info, segment_id='no') -%}
+<div class="form-group">
+    <input type="hidden" name="segment_id" value="{{ segment_id }}">
+    <label class="col-sm-2 control-label">小节:</label>
+    <div class="col-sm-2">
+    <input name='start_time' class="form-control" type="number" value="{{ start }}">
+        </div>
+    <div class="col-sm-1" style="width: 0px;">
+        <label class="control-label" style="padding-left: 0px; padding-right: 0px;">－</label>
+    </div>
+
+
+    <div class="col-sm-2">
+    <input name='end_time' class="form-control" type="number" value="{{ end }}">
+
+        </div>
+    <div class="col-sm-2">
+    <select name="segment_type" class="form-control">
+
+        <option value="0" {%if segment== 0 %} selected="selected" {%endif%}>乐段</option>
+        <option value="1" {%if segment== 1 %} selected="selected" {%endif%}>前奏</option>
+
+        <option value="2" {%if segment== 2 %} selected="selected" {%endif%}>间奏</option>
+        <option value="3" {%if segment== 3 %} selected="selected" {%endif%}>尾奏</option>
+    </select>
+        </div>
+    <div class="col-sm-2">
+    <input name='label_info' class="form-control" type="text" value="{{ lable_info }}">
+</div>
+        <button type="button" class="btn btn-primary btn-segment-delete">删除</button>
+</div>
+{%- endmacro %}
+{% block form_body %}
+
+{% macro image_template(score_image_path, score_image_name, seq) -%}
+<div class="form-group">
+    <label class="col-sm-2 control-label"></label>
+    <div class="col-sm-4">
+        {{ widget_image_upload('score_image_path', score_image_path, 'score_image_name',
+        score_image_name,None,None,None,'') }}
+    </div>
+    顺序:<input type="number" name="seq" value="{{ seq }}">
+    <button type="button" class="btn btn-primary btn-image-delete">删除</button>
+</div>
+{%- endmacro %}
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% if form.non_field_errors() %}
+                    <div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>
+                    {% endif %}
+
+                    {% set messages = get_messages(request) %}
+                    {% if messages %}
+                    <div class="alert alert-success alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ messages|join('|') }}
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+
+                        {{ form_input(form.name, "col-sm-2 control-label", "col-sm-4") }}
+
+                    </div>
+                    <div class="form-group">
+                        {{ form_select(form.music_category, "col-sm-2 control-label", "col-sm-4") }}
+
+                    </div>
+                    <div class="form-group">
+                        {{ form_select(form.music_type, "col-sm-2 control-label", "col-sm-4") }}
+                    </div>
+
+                    <div class="form-group">
+
+                        {{ form_input(form.ratio, "col-sm-2 control-label", "col-sm-4", 'number') }}
+
+                    </div>
+                    <div class="form-group">
+                        {{ form_select2(form.timbre, url('score:timbre_choices'), timbre_options,"col-sm-2
+                        control-label", "col-sm-6", multiple=true, attrs=None, ) }}
+                    </div>
+                    <div class="form-group" id="keyboard-d">
+                        {{ form_keyboard(form.keyboard, "col-sm-2 control-label", "col-sm-1", attrs=None, ) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_radio(form.score_type, "col-sm-2 control-label", "col-sm-4") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.xml_path, form.xml_name, None, None, None, "col-sm-2 control-label",
+                        "col-sm-4", file_type='.xml') }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"><a id='btn-add-image'
+                                                                 href="javascript:void(0)">＋添加曲谱图片<span class="text-danger">（*）</span></a> </label>
+                    </div>
+                    <div class="form-group" id="add-new-image">
+                        {%for score_image in score_images%}
+                        {{ image_template(score_image.pic_path, score_image.pic_name, score_image.seq) }}
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.b00_path, form.b00_name, None, None, None, "col-sm-2 control-label",
+                        "col-sm-4", file_type='.B00') }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.sample_midi_path, form.sample_midi_name, None, None, None, "col-sm-2
+                        control-label", "col-sm-4", file_type='.mid') }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.compare_midi_path, form.compare_midi_name, None, None, None, "col-sm-2
+                        control-label", "col-sm-4", file_type='.mid') }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.sample_audio_path, form.sample_audio_name, None, None, None, "col-sm-2
+                        control-label", "col-sm-4") }}
+                    </div>
+
+                    <br>
+                    <br>
+                    <br>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"><a id='btn-add-segment'
+                                                                 href="javascript:void(0)">＋添加乐段<span class="text-danger">（*）</span></a> </label>
+                    </div>
+                    <div class="form-group" id="add-new-segment">
+                        <input type="hidden" value={%if delete_id %}{{ delete_id }} {%else%}","{%endif%} name="delete_id" id="delete-id">
+                        {%for seg in segments%}
+                        {{ segment_template(seg.start, seg.end, seg.type ,seg.label, seg.id) }}
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_bool(form.is_weak, "col-sm-2 control-label", "col-sm-2", "checkbox") }}
+                        {{ form_select(form.weak_type, "col-sm-2 control-label", "col-sm-2") }}
+
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_bool(form.is_repeat, "col-sm-2 control-label", "col-sm-2", "checkbox") }}
+
+
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.poster_path, form.poster_name, None, None, None, "col-sm-2
+                        control-label", "col-sm-4") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_textarea(form.description, "col-sm-2 control-label", "col-sm-8") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_bool(form.status, "col-sm-2 control-label", "col-sm-2", "checkbox") }}
+
+                    </div>
+                    <div class="col-lg-12 col-lg-offset-2">
+
+                        <button type="submit" id="btn-submit" class="btn btn-primary ">保存</button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+
+<script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+<script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+<script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/html" class="segment-html">
+   {{ segment_template('', '',0, '', 'no') }}
+</script>
+<script type="text/html" class="score-image-html">
+    <div class="form-group">
+        <label class="col-sm-2 control-label"></label>
+        <div class="col-sm-4">
+            {{ widget_image_upload('score_image_path', '', 'score_image_name', '',None,None,None,'') }}
+        </div>
+        顺序:<input type="number" name="seq">
+        <button type="button" class="btn btn-primary btn-image-delete">删除</button>
+    </div>
+</script>
+<script type="text/javascript">
+    function delete_segment_init() {
+        $(".btn-segment-delete").on("click", function () {
+            var segment_id = $(this).parent().find("[name='segment_id']").val();
+            //alert(segment_id);
+            if (segment_id && segment_id != ''&& segment_id!='no') {
+                var current_id = $('#delete-id').val();
+                current_id = current_id + segment_id + ',';
+                $('#delete-id').val(current_id);
+
+            }
+            $(this).parent().remove();
+
+        });
+    }
+    active_valid('start_time');
+    active_valid('end_time');
+    active_valid('label_info');
+    active_valid('score_image_path');
+    active_valid('score_image_name');
+    active_valid('seq');
+    function getkeyboard() {
+        var result = '';
+        $('#keyboard-d').find(':checkbox').each(function () {
+            if ($(this).is(":checked")) {
+                result += '1';
+            }
+            else {
+                result += '0';
+            }
+        });
+        $('#keyboard-d').find(':hidden').val(result);
+    }
+    $('#keyboard-d').find(':checkbox').each(function () {
+        $(this).click(function () {
+            getkeyboard();
+        })
+    });
+
+    delete_segment_init();
+    $(".btn-image-delete").on("click", function () {
+        $(this).parent().remove();
+    });
+    $('#btn-add-segment').click(function () {
+        $('#add-new-segment').append($('.segment-html').html());
+        active_valid('start_time');
+        active_valid('end_time');
+        active_valid('label_info');
+        delete_segment_init();
+    });
+    $('#btn-add-image').click(function () {
+        $('#add-new-image').append($('.score-image-html').html());
+        $('.js_file_manager').off("click");
+         upload_image_with_type_version2();
+        active_valid('score_image_path');
+        active_valid('score_image_name');
+        active_valid('seq');
+        //upload_image_version2();
+        upload_image_with_type_version2();
+        $(".btn-image-delete").on("click", function () {
+            $(this).parent().remove();
+        });
+    });
+    $('#btn-submit').click(function () {
+        var length = $('#add-new-image').children('div').length;
+        if (length == 0){
+            console.log('234');
+
+        bootbox.alert({
+            buttons: {
+               ok: {
+                    label: '确定',
+                    className: 'btn-myStyle'
+                }
+            },
+            message: '至少上传一组图片在提交',
+            title: "错误",
+        });
+
+            return false;
+        }
+        var length1 = $('#add-new-segment').children('div').length;
+        if (length1 == 0){
+            util.showError("乐段至少上传一组");
+            bootbox.alert({
+            buttons: {
+               ok: {
+                    label: '确定',
+                    className: 'btn-myStyle'
+                }
+            },
+            message: '乐段至少上传一组在提交',
+            title: "错误",
+        });
+            return false;
+        }
+    })
+</script>
+
+{% endblock %}

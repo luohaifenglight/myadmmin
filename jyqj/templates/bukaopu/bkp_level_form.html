@@ -1,0 +1,487 @@
+{% extends "base_form.html" %}
+
+{% block csscontent %}
+    <link href="{{ static('lib/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ static('css/bootstrap-markdown.min.css') }}" rel="stylesheet">
+    {#            <link href="{{ static('css/flat-ui.css') }}" rel="stylesheet">#}
+    <link href="http://cdn.bootcss.com/bootstrap-fileinput/4.3.6/css/fileinput.css" rel="stylesheet">
+    <style>
+        .model_title {
+            text-align: center;
+            font-style: inherit;
+            color: #ffffff;
+            font-size: 18px;
+            background: #3c8dbc;
+            -webkit-border-radius: 20px 20px 0px 0px;
+            -moz-border-radius: 20px 20px 0px 0px;
+            border-radius: 20px 20px 0px 0px;
+        }
+
+    </style>
+
+
+
+{% endblock %}
+
+{% macro form_input_clean(field, label_class='', input_class='', input_type='text', placeholder="", attrs=None, kwargs=None) -%}
+    {% if field.html_name not in hide_fields %}
+        <div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+            {% if input_type == "date" %}
+                {% if kwargs is none %}
+                    {% set kwargs = {'max': "9999-12-31"} %}
+                {% elif 'max' not in kwargs %}
+                    {% set _ = kwargs.update({'max': "9999-12-31"}) %}
+                {% endif %}
+            {% endif %}
+            {{ input_widget(input_type, field.html_name, field.value() if field.value() is not none else '', "form-control", field.id_for_label, placeholder|default(field.help_text, true), attrs=attrs, kwargs=kwargs) }}
+            {{ field_error(field) }}
+        </div>
+    {% endif %}
+{%- endmacro %}
+
+{% macro segment_input(name,value,hidden) %}
+    <div class="form-group">
+        <input class="form-control" type="text" id="id_{{ name }}" {% if hidden %} hidden{% endif %} name="{{ name }}"
+               value="{{ value }}"
+               placeholder="{{ value }}">
+    </div>
+{% endmacro %}
+
+
+{% macro form_select_connect(field, pic, ajax_url, selected_options,label_class='', input_class='', attrs=None, multiple=false) -%}
+    {# form-select #}
+    <label{% if label_class %} class="{{ label_class }}"{% endif %} for="{{ field.id_for_label }}">
+        {% if field.field.required %}
+            <span class="text-danger">*</span> {% endif %}图片:</label>
+    <div class="{{ input_class }}"><select class="form-control select2-remote" id="pic_name" name="pic_name"
+                                           data-ajax--url="{{ url('bukaopu:pic_choices') }}" data-allow-clear="true"
+                                           {% if field.html_name in readonly_fields or 'all' in readonly_fields %}disabled{% endif %}
+                                           data-placeholder="-----" {{ attrs }}>
+        {% if field.value() %}
+
+            <option value="{{ pic.id }}" selected="selected">{{ pic.text }}</option>
+
+        {% endif %}
+    </select></div>
+    {{ field_label(field, label_class) }}
+    <div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+        <select class="form-control select2-remote{% if multiple %}-multiple{% endif %}" id="{{ field.id_for_label }}"
+                name="{{ field.html_name }}" {% if multiple %}multiple="multiple"{% endif %} data-allow-clear="true"
+                {% if field.html_name in readonly_fields or 'all' in readonly_fields %}disabled{% endif %}
+                data-placeholder="-----" {{ attrs }}>
+            {% if field.value() %}
+                {% for opt in selected_options %}
+                    <option value="{{ opt.id }}" selected="selected">{{ opt.text }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+        {% if field.html_name in readonly_fields or 'all' in readonly_fields %}
+            {% if isinstance(field.value(), list) %}
+                {% for val in field.value() %}
+                    <input type="hidden" name="{{ field.html_name }}" value="{{ val }}">
+                {% endfor %}
+            {% else %}
+                <input type="hidden" name="{{ field.html_name }}" value="{{ field.value() or '' }}">
+            {% endif %}
+        {% endif %}
+        {{ field_error(field) }}
+    </div>
+{%- endmacro %}
+
+{% macro segment_template(start, end, lable_info) -%}
+    <div>
+        <label class="col-sm-2 control-label">开始时间:</label><input name='start_time' type="text" value="{{ start }}">秒
+        <span>结束时间:</span><input name='end_time' type="text" value="{{ end }}">秒
+        <span>标签信息:</span><input name='label_info' type="text" value="{{ lable_info }}">
+        <button type="button" class="btn btn-primary btn-segment-delete">删除</button>
+    </div>
+{%- endmacro %}
+
+{% block form_body %}
+
+    <form id="index_form" name="index_form" action='#'
+          role="form" method="post" class="form-horizontal"
+          enctype="multipart/form-data">
+
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        {% if action %}
+            <input hidden name="level_id" value="{{ level_id }}">
+            <input hidden name="action" value="{{ action }}">
+        {% endif %}
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+
+                        {% if messages %}
+                            <div class="alert alert-success alert-dismissable">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                {{ messages|join('|') }}
+                            </div>
+                        {% endif %}
+
+
+                        <div class="row col-sm-12">
+
+                            <div class="col-sm-6">
+
+                                <h4>基本信息</h4>
+                                <div class="form-group">
+                                    {{ form_input(form.name, "col-sm-3 control-label", "col-sm-6") }}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_input(form.description, "col-sm-3 control-label", "col-sm-6") }}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_select(form.type, "col-sm-3 control-label", "col-sm-6", "") }}
+
+                                </div>
+                                <div class="form-group">
+                                    {{ form_input(form.seq, "col-sm-3 control-label", "col-sm-6", "") }}
+                                </div>
+
+                            </div>
+
+                            <div class="col-sm-6">
+                                <h4>上传音乐：
+                                    {% if form.bgm_path.value() %}
+                                        <a href="{{ form.bgm_path.value() }}">{{ form.bgm_name.value() }}</a>
+                                    {% else %}
+                                        <label>未上传</label>
+                                    {% endif %}
+                                </h4>
+                            </div>
+                            <div class="col-sm-6">
+                                <h4>背景音乐</h4>
+                                <input style="width:200px;height: 200px;" id="bkp_bgm" name="bkp_bgm"
+                                       type="file">
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12">
+                            {% if action !='check' %}
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#myModal" onclick="init_model_validator();">
+                                    ＋添加轮次
+                                </button>
+                            {% endif %}
+                            <table class="table table-striped table-bordered table-hover" id="target_table">
+                                <thead>
+                                <tr>
+                                    <th style="width:80px;">序号</th>
+                                    {#                                    <th>轮次</th>#}
+                                    <th>图片id</th>
+                                    <th>选择图片</th>
+                                    <th>目标</th>
+                                    <th>本轮时间</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+
+                                {% if segments %}
+                                    {% for seg in  segments %}
+                                        <tr id="id_{{ seg.id }}">
+                                            <td></td>
+                                            <td>
+                                                {{ segment_input('bkp_pic_id',seg.bkp_pic_id,'') }}
+                                            </td>
+                                            <td>{{ segment_input('bkp_pic_name',seg.bkp_pic_name,'') }}</td>
+                                            <td>{{ segment_input('bkp_target_name',seg.bkp_target_name,'') }}</td>
+                                            <td>{{ segment_input('bkp_time',seg.time,'') }}</td>
+                                            <td>
+                                                <a type="button" onclick="del_round('{{ seg.id }}')" class="btn ">删除</a>
+                                                <input type="text" hidden name="bkp_round_id" value="{{ seg.id }}">
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
+
+                                </tbody>
+                            </table>
+                            <div class="col-lg-12 col-lg-offset-5">
+
+                                {% if action !='check' %}
+                                    <button type="submit" class="btn btn-primary sm-lg-4">保存</button>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content" style="    border-radius: 20px;">
+                <div class="modal-header model_title">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        添加轮次
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    {#                    添加目标弹窗内容#}
+                    <form id="model_form"
+                          role="form" method="post" class="form-horizontal"
+                          enctype="multipart/form-data">
+                        <input id='save_pic' hidden name="save_pic" value="">
+                        <input id='save_pic_id' hidden name="save_pi_id" value="">
+                        <input id='save_target' hidden name="save_target" value="">
+                        <input id='save_target_id' hidden name="save_target_id" value="">
+
+
+                        <div class="form-group ">
+                            <label class="col-sm-4 control-label" for="pic_id"><span class="text-danger">*</span>
+                                选择图片:</label>
+
+                            <div class="col-sm-3">
+                                <select id="pic_id" name="pic"
+                                        onchange="fetch_target();save_select('save_pic',this.options[this.options.selectedIndex].value,this.options[this.options.selectedIndex].text)"
+                                        style="width:200px">
+                                    <option selected value="">请选择图片-------</option>
+                                    {% for pic in selected_pic_options %}
+                                        <option value={{ pic.id }}>{{ pic.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <label class="col-sm-4 control-label" for="target_id"><span class="text-danger">*</span>
+                                选择目标:</label>
+                            <div class="col-sm-3">
+                                <select id="target_id" name="target" value="1"
+                                        onchange="save_select('save_target',this.options[this.options.selectedIndex].value,this.options[this.options.selectedIndex].text)"
+                                        style="width: 200px">
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="id_time"><span class="text-danger">*</span> 本轮时间:</label>
+                            <div class="col-sm-3">
+                                <input class="form-control" type="text" id="id_time" name="time" value=""
+                                       placeholder="必填">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default"
+                                    data-dismiss="modal">关闭
+                            </button>
+                            <button type="submit" class="btn btn-primary" data-dismiss="modal" id="id_modal_submit"
+                                    onclick="getFormInfo('model_form')">
+                                提交更改
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+{% endblock form_body %}
+
+{% block body_js %}
+    <script src="{{ static('js/fileinput.js') }}"></script>
+    <script src="{{ static('js/fileinput_locale_zh.min.js') }}"></script>
+    {#    常用数据处理函数#}
+    <script src="{{ static('js/util.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+    <script src="{{ static('js/hera-select2.js') }}"></script>
+
+    <script>
+        {#    页面初始化－－初始化上传插件#}
+        $(document).ready(function () {
+            initFileInput("bkp_bgm", "/User/EditPortrait");
+            auto_add_table_id('seq');
+            init_valid('index_form');
+            append_valid_digital('index_form', 'seq');
+            append_valid_digital('index_form', 'time');
+
+            remove_valid('index_form', 'description');
+            clear_modal_data('myModal');
+
+
+            {#            init_valid('model_form');#}
+        });
+    </script>
+
+    <script type="text/javascript">
+
+        //ajax请求函数
+        function ajax_post(url, k, v, callback) {
+            var parameter = {};
+            parameter[k] = v;
+            parameter['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                dataType: 'json',
+                data: parameter,
+                timeout: 1000,
+                cache: false,
+                success: callback //成功执行方法
+            });
+        }
+
+        //model： 保存选择图片和目标
+        function save_select(id, value, text) {
+            $('#' + id).val(text);
+            $('#' + id + '_id').val(value);
+        }
+        //追加select options
+        function selectFunction(data) {
+            var target = $('#target_id');
+            var option = '';
+            target.empty();
+
+            for (i = 0; i < data.length; i++) {
+                if (data[i].num == '0') {
+                    option = $("<option>").val('').text(data[i].name);//------线
+                } else {
+                    option = $("<option>").val(i).text(data[i].name + '＊' + data[i].num);//具体option
+                }
+                target.append(option);
+            }
+        }
+
+        function delRoundFunction(data) {
+            if (data) {
+                //删除数据库中保存的改行数据 成功返回删除的id 页面进行隐藏处理
+                $('#id_' + data.id).hide();
+            }
+        }
+        function delAddRoundFunction(obj) {
+
+            $(obj.parentNode).parent().remove();
+        }
+
+
+    </script>
+
+    <script>
+        function init_model_validator() {
+            //开启验证
+            init_valid('model_form');
+            append_valid_digital('model_form', 'time');
+            append_valid('model_form', 'pic');
+            append_valid('model_form', 'target');
+            {#            is_valid('model_form');#}
+
+        }
+
+    </script>
+
+    <script>
+        function fetch_target() {
+            var pic_id = $("#pic_id").val() | '';
+            var target = $('#target_id');
+            target.empty();
+            ajax_post('/bkp/level/target_choices/', 'pic_id', pic_id);
+
+        }
+        $("#pic_id").on("change", function (e) {
+            {#            var pic_id = $("#pic_id").val() | '';#}
+            var save_pic_id = $("#save_pic_id").val() | '';
+            var target = $('#target_id');
+            target.empty();
+            ajax_post('/bkp/level/target_choices/', 'pic_id', save_pic_id, selectFunction);
+        });
+    </script>
+    <script>
+        function del_round(id) {
+            ajax_post('/bkp/level/del_round/', 'id', id, delRoundFunction);
+        }
+
+
+    </script>
+
+    <script>
+        function td_format(name, value) {
+            var tr_string = '';
+            tr_string += '<td>';
+            tr_string += '<div class="form-group" >';
+
+            if (name != '') {
+                tr_string += ('<input class="form-control" type="text" id=' + name);
+            }
+            else {
+                tr_string += ('<input class="form-control" type="text" id=""' );
+            }
+            tr_string += ('   name=' + name);
+
+            if (value != '') {
+                tr_string += ('   value=' + value);
+                tr_string += ('   placeholder=' + value);
+            } else {
+                tr_string += ('   value="" ');
+
+                tr_string += ('   placeholder="" ' );
+            }
+            tr_string += (' >');
+            tr_string += '</div>';
+            tr_string += '</td>';
+            console.log(tr_string);
+            return tr_string;
+        }
+
+
+        function getFormInfo(formid) {
+            if (is_valid(formid)) {
+                var pic_name = document.getElementById("save_pic").value;
+                var pic_id = document.getElementById("save_pic_id").value;
+                var target_name = document.getElementById("save_target").value;
+                var target_id = document.getElementById("save_target_id").value;
+                var time = $('#id_time');
+
+                var tr_string = '<tr><td>id</td>';
+                tr_string += td_format('pic_id', pic_id);
+                tr_string += td_format('pic_name', pic_name);
+                {#            tr_string += td_format('target_id', target_id);#}
+                tr_string += td_format('target_name', target_name);
+                tr_string += td_format('time', time.val());
+
+                tr_string += '<td><a onclick="delAddRoundFunction(this);" type="button" class="btn btn-segment-delet">删除</a></td>';
+                {#            console.log(tr_string);#}
+                add_table_tr('target_table', tr_string);
+                auto_add_table_id('seq');
+
+                //添加后更新校验框架  针对初始情况 表格为空时 无法获取input
+
+
+                append_valid('index_form', 'target_name');
+                append_valid('index_form', 'pic_id');
+                append_valid('index_form', 'name');
+                append_valid('index_form', 'pic_name');
+                append_valid('index_form', 'time');
+                remove_valid('index_form', 'description');
+
+            }
+            else {
+                console.log('validater not pass');
+                return false;
+            }
+
+        }
+    </script>
+
+{% endblock %}

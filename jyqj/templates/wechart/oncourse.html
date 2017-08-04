@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>玖月课堂</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <link href="{{ static('img/photo2.png') }}" rel="shortcut icon">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link rel="stylesheet" href="{{ static ('bootstrap/css/bootstrap.min.css') }}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ static ('fonts/font-awesome.min.css') }}">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="{{  static ('ionicons/ionicons.min.css') }}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{  static ('css/AdminLTE.min.css') }}">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="{{  static ('plugins/iCheck/square/blue.css') }}">
+    <link href="{{ static('css/bootstrapValidator.min.css') }}" rel="stylesheet">
+    <style type="text/css">
+    .login-page{
+          background-color: #F3F3F3;
+        }
+        .login-title{
+            height:0px;
+            width:100%;
+            padding-bottom:33%;
+            line-height: 122px;
+
+            background-color: #FFBE29;
+            background: url("{{ static('img/oncourse-banner.png') }}");
+            background-size:100% 100%;
+
+        }
+        .ny{
+            line-height: 40px;
+            width:160px;
+             margin-left:23px;
+            vertical-align: middle;
+            font-family: MicrosoftYaHei;
+            font-size: 22px;
+            color: #FFFFFF;
+        }
+        .login-title div span{
+
+        }
+        .box-me{
+            background: #FFFFFF;
+            border-radius: 2px;
+            margin: 14px;
+            padding: 6px;
+
+        }
+        .span-box{
+            margin: 17px;
+            font-family: MicrosoftYaHei;
+            font-size: 15px;
+            color: #666666;
+            letter-spacing: 0px;
+
+        }
+        .course-image{
+            border-bottom:1px solid #F3F3F3;
+            text-align: center;
+        }
+        .course-image label{
+            margin: 14px;
+            font-family: MicrosoftYaHei;
+            font-size: 20px;
+            color: #170407;
+            text-align: center;
+        }
+        .content-me{
+            margin-left: 14px;
+            margin-top: 17px;
+            margin-bottom: 17px;
+        }
+        .yuanquan{
+                //position:fixed;
+                margin-top: 4px;
+                width:20px;
+                height:20px;
+                background: url("{{ static('img/circle2x.png') }}");
+                background-size:100% 100%;
+                text-align:center;
+                float: left;
+        }
+        .yuanquan-text{
+            font-family: MicrosoftYaHei;
+            font-size: 13px;
+            color: #FFC748;
+            letter-spacing: 0px;
+        }
+        .content-text{
+            margin-left: 36px;
+
+            font-family: MicrosoftYaHei;
+            font-size: 19px;
+            color: #1C0B01;
+        }
+        .student-request{
+            margin-left: 36px;
+            height:17px;
+            line-height:17px;
+            font-family: MicrosoftYaHei;
+            font-size: 14px;
+            color: #616161;
+            vertical-align: middle
+        }
+    </style>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="hold-transition login-page">
+{% if err_msg %}
+<div class="alert alert-error alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    {{ err_msg }}
+</div>
+{% endif %}
+<div class="login-title">
+        <label class="ny">今天的课堂表现如下:</label>
+
+
+    </div><!-- /.login-logo -->
+<div class="box-me">
+    <div class="span-box">
+    <span>
+        在今天的课程中，小朋友们首次尝试了上下键同时弹奏，这是个不小的挑战呢！爸爸妈妈要多鼓励表扬，帮助小朋友顺利渡过难关哦！此外，练习正确的坐姿和手势在这个阶段也十分重要呢，千万不要忽略哦～
+    </span>
+    </div>
+    </div>
+
+<div class="box-me">
+    <div class="course-image">
+        <label>今日的课程重点
+
+        </label>
+
+    </div>
+    <div>
+        <img src="{{ static('img/course-import.png') }}" style="width:100%;height:100%;" />
+    </div>
+
+<!-- /.login-box-body -->
+</div><!-- /.login-box -->
+
+<div class="box-me">
+    <div class="course-image">
+        <label>弹奏作业</label>
+    </div>
+    <div class="content-me">
+        <div class="yuanquan"><center>
+         <span class="yuanquan-text">1</span></center>
+        </div>
+        <div class="content-text"><span>数鸭子</span></div>
+        <div class="student-request">
+            <span>上键＋下键＋脚键</span>&nbsp;&nbsp;
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <span>5次</span>
+        </div>
+    </div>
+    <div class="content-me">
+        <div class="yuanquan">
+         <span class="yuanquan-text">2</span>
+        </div>
+        <div class="content-text"><span>数青蛙</span></div>
+        <div class="student-request">
+            <span>上键＋下键＋脚键</span>&nbsp;&nbsp;
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <img style="width:19px; height: 100%;" src="{{ static('img/star2x.png') }}">
+            <span>5次</span>
+        </div>
+    </div>
+
+</div>
+
+<div class="box-me">
+    <div class="course-image">
+        <label>模唱作业</label>
+
+    </div>
+    <div class="content-me">
+        <div class="yuanquan">
+         <span class="yuanquan-text">1</span>
+        </div>
+        <div class="content-text"><span>数鸭子</span></div>
+    </div>
+    <div class="content-me">
+        <div class="yuanquan">
+         <span class="yuanquan-text">2</span>
+        </div>
+        <div class="content-text"><span>数青蛙</span></div></div>
+</div>
+
+<!-- jQuery 2.1.4 -->
+<script src="{{  static ('plugins/jQuery/jQuery-2.1.4.min.js') }}"></script>
+<!-- Bootstrap 3.3.5 -->
+<script src="{{  static ('bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{  static ('js/jquery.cookie.js') }}"></script>
+<!-- iCheck -->
+<script src="{{  static ('plugins/iCheck/icheck.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('js/bootstrapValidator.min.js') }}"></script>
+<script>
+
+    $('form').bootstrapValidator({
+//        live: 'disabled',
+        message: 'This value is not valid',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            username: {
+                message: 'The username is not valid',
+                validators: {
+                    notEmpty: {
+                        message: '用户名不能为空'
+                    },
+
+                },
+            },
+            password: {
+                validators: {
+                    notEmpty: {
+                        message: '密码不能为空'
+                    },
+
+                }
+            },
+        }
+
+    });
+    $(function () {
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+    });
+
+    $(document).ready(function () {
+        if ($.cookie("rmbUser") == "true") {
+            if ($("#rmbUser").prop("checked", true));
+            $('.icheckbox_square-blue').addClass('checked');
+            $('.icheckbox_square-blue').attr("aria-checked", "true");
+            $("#user").val($.cookie("userName"));
+            $("#pass").val($.cookie("passWord"));
+        }
+    });
+    //保存用户信息
+    function saveUserInfo() {
+        if ($("#rmbUser").prop("checked")) {
+            var userName = $("#user").val();
+            var passWord = $("#pass").val();
+            $.cookie("rmbUser", "true", {expires: 7}); // 存储一个带7天期限的 cookie
+            $.cookie("userName", userName, {expires: 7}); // 存储一个带7天期限的 cookie
+            $.cookie("passWord", passWord, {expires: 7}); // 存储一个带7天期限的 cookie
+        }
+        else {
+            $.cookie("rmbUser", "false", {expires: -1});
+            $.cookie("userName", '', {expires: -1});
+            $.cookie("passWord", '', {expires: -1});
+        }
+    }
+</script>
+</body>
+</html>

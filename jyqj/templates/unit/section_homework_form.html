@@ -1,0 +1,223 @@
+{% extends "base_form.html" %}
+
+
+{% macro score_enjoy_template(score_id, score_text ) -%}
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="form-group">
+            <label class="col-sm-2 control-label"><span
+                    class="text-danger">*</span>选择曲子:</label>
+            <div class="col-sm-4">
+                <select class="form-control select2-remote" name="score_enjoy"
+                        data-ajax--url="{{ url('score_enjoy:score_enjoy_office_choices') }}">
+                    {% if score_id %}
+
+                    <option value="{{ score_id }}" selected="selected">{{ score_text }}</option>
+
+                    {% endif %}
+                </select></div>
+        </div>
+
+    </div>
+    <div class="panel-footer">
+        <button type="button" class="btn btn-primary btn-score-delete">删除</button>
+    </div>
+</div>
+{%- endmacro %}
+{% macro score_template(score_id, score_text, keyboard, star_num, times, tempo) -%}
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="form-group">
+            <label class="col-sm-2 control-label"><span
+                    class="text-danger">*</span>选择曲子:</label>
+            <div class="col-sm-4">
+                <select class="form-control select2-remote" name="score"
+                        data-ajax--url="{{ url('score:music_office_choices') }}">
+                    {% if score_id %}
+
+                    <option value="{{ score_id }}" selected="selected">{{ score_text }}</option>
+
+                    {% endif %}
+                </select></div>
+        </div>
+        <div class="form-group keyboard-d">
+            <label class="col-sm-2 control-label"><span
+                    class="text-danger">*</span>声部要求: </label>
+            <label class="checkbox-inline col-sm-2">
+                <input class="" type="checkbox" {% if keyboard[0]=='1' %}
+                       checked="checked" {% endif %}>
+                <input type="hidden" name="keyboard" class='input-keyboard' value="{{ keyboard }}">
+                上键盘
+            </label>
+
+            <label class="checkbox-inline col-sm-2"><input type="checkbox" {% if keyboard[1]=='1' %} checked="checked"
+                                                           {% endif %}>下键盘</label>
+            <label class="checkbox-inline col-sm-2"><input type="checkbox" {% if keyboard[2]=='1' %} checked="checked"
+                                                           {% endif %}>脚键盘</label>
+        </div>
+        <div class="form-group">
+        <label class="col-sm-2 control-label"><span
+                    class="text-danger">*</span>星级要求:</label>
+            <div class="col-sm-4">
+                <select class="form-control" name="star_num">
+                    <option value="1" {%if star_num=="1" %}selected="selected"{%endif%}>1星级别</option>
+
+                    <option value="2" {%if star_num=="2" %}selected="selected"{%endif%}>2星级别</option>
+
+                    <option value="3" {%if star_num=="3" %}selected="selected"{%endif%}>3星级别</option>
+
+
+                    <option value="4" {%if star_num=="4" %}selected="selected"{%endif%}>4星级别</option>
+
+
+                    <option value="5" {%if star_num=="5" %}selected="selected"{%endif%}>5星级别</option>
+
+                </select>
+
+            </div>
+        </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label"><span
+                    class="text-danger">*</span>次数要求:</label>
+            <div class="col-sm-4">
+                <input name='times' class="form-control" type="number" placeholder="请填写正整数" min="1" value="{{ times }}">
+
+            </div>
+        </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label"><span
+                    class="text-danger">*</span>tempo:</label>
+            <div class="col-sm-4">
+                <input name='tempo' class="form-control" type="number" placeholder="请填写正整数" min="40" max="240" value="{{ tempo }}">
+
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button type="button" class="btn btn-primary btn-score-delete">删除</button>
+    </div>
+</div>
+{%- endmacro %}
+
+{% block form_body %}
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+        <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% if form.non_field_errors() %}
+                <div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>
+                {% endif %}
+
+                {% set messages = get_messages(request) %}
+                {% if messages %}
+                <div class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ messages|join('|') }}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    {{ form_input(form.section_name, "col-sm-2 control-label", "col-sm-4") }}
+                </div>
+                <div class="form-group">
+                        <label class="col-sm-2 control-label"> 弹奏练习<a id='btn-add-score' href="#">＋添加曲子</a> </label>
+                </div>
+                <div class="panel panel-default" id="add-new-score">
+                    {%for seg in scores%}
+                        {{ score_template(seg.score_id, seg.score_text, seg.keyboard, seg.star_num, seg.times, seg.tempo) }}
+                        {% endfor %}
+                </div>
+                 <div class="form-group">
+                        <label class="col-sm-2 control-label"> 模唱练习<a id='btn-add-score_enjoy' href="#">＋添加曲子</a> </label>
+                </div>
+                <div class="panel panel-default" id="add-new-score_enjoy">
+                    {%for seg in score_enjoys%}
+                        {{ score_enjoy_template(seg.score_id, seg.score_text) }}
+                        {% endfor %}
+                </div>
+                <div class="col-lg-12 col-lg-offset-2">
+
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+
+
+            </div>
+        </div></div>
+    </div>
+
+</form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+
+<script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+<script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+<script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/html" class="score-html">
+{{ score_template('', '' , '000', '1', 1, 40)}}
+</script>
+<script type="text/html" class="score_enjoy-html">
+{{ score_enjoy_template('', '' )}}
+</script>
+<script type="text/javascript">
+    function delete_score_init() {
+        $(".btn-score-delete").on("click", function () {
+            $(this).parent().parent().remove();
+
+        });
+    }
+
+    function getkeyboard(current) {
+        var result = '';
+        current.find(':checkbox').each(function () {
+            if ($(this).is(":checked")) {
+                result += '1';
+            }
+            else {
+                result += '0';
+            }
+        });
+        current.find(':hidden').val(result);
+        return result;
+    }
+    function keyboard_init() {
+        $('.keyboard-d').find(':checkbox').each(function () {
+        $(this).click(function () {
+            getkeyboard($(this).parent().parent());
+
+        })
+        active_valid('score');
+        active_valid('star_num');
+        active_valid('times');
+        active_valid('tempo');
+    });
+    }
+    delete_score_init();
+    $('#btn-add-score').click(function () {
+        //console.log('start---');
+        $('#add-new-score').append($('.score-html').html());
+        select2_init();
+        keyboard_init();
+        delete_score_init();
+    });
+    $('#btn-add-score_enjoy').click(function () {
+        //console.log('start---');
+        $('#add-new-score_enjoy').append($('.score_enjoy-html').html());
+        select2_init();
+        active_valid('score_enjoy');
+        delete_score_init();
+    });
+
+
+    keyboard_init();
+
+</script>
+{% endblock %}

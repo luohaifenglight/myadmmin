@@ -1,0 +1,82 @@
+{% extends "base_form.html" %}
+
+{% block form_body %}
+
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+     <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% if form.non_field_errors() %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>{% endif %}
+
+                {% set messages = get_messages(request) %}
+                {% if messages %}
+                <div class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ messages|join('|') }}
+                </div>
+                {% endif %}
+                <div class="form-group">
+                        {{ form_input(form.name, "col-sm-2 control-label", "col-sm-4") }}
+                    </div>
+                <div class="form-group">
+                        {{ form_select2(form.course_system, url('class:course_system_choices'), course_system_choices,"col-sm-2 control-label", "col-sm-4", attrs=None, ) }}
+                    </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">开课时间:</label>
+                    <label class="control-label">{{ classes.start_time }}<label/>
+
+                    </div>
+                 <div class="form-group">
+                        {{ form_select2(form.teacher, url('class:teacher_choices'), teacher_choices,"col-sm-2 control-label", "col-sm-4", attrs=None, ) }}
+                    </div>
+                <div class="form-group">
+                        <label class="control-label col-sm-2">课程进度:</label>
+                        <label class="control-label">{{ classes.progress }}</label>
+                    </div>
+                <div class="col-lg-12 col-lg-offset-2">
+
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+
+
+            </div>
+        </div>
+     </div>
+
+</form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+
+    <script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+    <script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+    <script src="{{ static('js/hera-select2.js') }}"></script>
+    <script type="text/javascript">
+        $('form').bootstrapValidator('addField','name',{
+//        live: 'disabled',
+
+                message: 'The filed is not valid',
+                validators: {
+                    notEmpty: {
+                        message: '不能为空'
+
+                    },
+                    regexp: {/* 只需加此键值对，包含正则表达式，和提示 */
+                            regexp: /^[\u4e00-\u9fa5a-zA-Z0-9]+$/,
+                            message: '只能是数字和字'
+                        },
+                     stringLength: {/*长度提示*/
+                            max: 12,
+                            message: '班级名长度为12内'
+                        }/*最后一个没有逗号*/
+
+        }
+    });
+    </script>
+{% endblock %}

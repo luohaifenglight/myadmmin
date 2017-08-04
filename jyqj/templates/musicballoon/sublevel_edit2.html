@@ -1,0 +1,1174 @@
+{% extends "base_list.html" %}
+
+
+{% block more_filter -%}
+{%- endblock more_filter %}
+
+
+{% block only_nav %}
+{% endblock only_nav %}
+
+{% block csscontent %}
+    <link href="{{ static('lib/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ static('css/bootstrap-markdown.min.css') }}" rel="stylesheet">
+{#            <link href="{{ static('css/flat-ui.css') }}" rel="stylesheet">#}
+    {#    <link href="{{ static('css/ace.min.css') }}" rel="stylesheet">#}
+
+    <link href="http://cdn.bootcss.com/bootstrap-fileinput/4.3.6/css/fileinput.css" rel="stylesheet">
+
+{% endblock %}
+
+
+{% block list_body %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row mbh">
+
+                        <div class="col-sm-12 dataTables_filter">
+
+                            <div class="col-lg-8">
+                                <a type="" class="btn btn-primary"
+                                   href="/musicballoon/level_manager/edit/?lid={{ sublevel.level_id }}"><
+
+                                    <
+                                    <返回上一页
+                                </a>
+                            </div>
+
+                            {#                            <a href="{{ url('institution:institution_create') }}" class="btn btn-primary">#}
+                            {#                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>#}
+                            {#                                返回关卡列表#}
+                            {#                            </a>#}
+                        </div>
+
+                    </div>
+                    <h3> {{ sublevel.name }}关卡</h3>
+
+                    <form id="index_form" name="index_form" action='/musicballoon/level_manager/sublevel_edit/'
+                          role="form" method="post" class="form-horizontal"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="id" value="{{ sublevel.id }}">
+                        <input type="hidden" name="level_id" value="{{ level_id }}">
+                        <div class="row">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+
+
+                                    <div class="row">
+
+                                        <div class="col-sm-12 form-group">
+                                            <div class="col-sm-6">
+                                                <h5 class="demo-panel-title">基本信息</h5>
+                                                <div class="row" style="padding: 0px 0px 0px 0px;">
+                                                    <label for="sublevel_name"
+                                                           class="col-sm-3 control-label">小关名称:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" name="sublevel_name" class="form-control"
+                                                               id="sublevel_name"
+                                                               style=" width: 200px; "
+                                                               value="{{ sublevel.name }}"
+                                                               placeholder="{{ sublevel.name }}">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="row" style="padding: 10px 0px 0px 0px;">
+                                                    <label for="sublevel_name"
+                                                           class="col-sm-3 control-label">小关顺序:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="sublevel_seq"
+                                                               style=" width: 200px;"
+                                                               value="{{ sublevel.seq }}"
+                                                               name="sublevel_seq" placeholder="{{ sublevel.seq }}">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="row" style="padding: 10px 0px 0px 0px;">
+                                                    <label for="sublevel_name"
+                                                           class="col-sm-3 control-label">描&nbsp&nbsp述:</label>
+                                                    <div class="col-sm-6">
+                                                        <textarea type="text" class="form-control" id="sublevel_desc"
+                                                                  name="sublevel_description"
+                                                                  style=" width: 200px;"
+                                                                  placeholder="{{ sublevel.description }}">{{ sublevel.description }}</textarea>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+
+
+                                            <div class="col-sm-6">
+                                                <h5 class="demo-panel-title">元素(%)</h5>
+                                                <label class="checkbox" for="sublevel_pitch">
+                                                    <input type="checkbox" value=" {% if sublevel.pitch_rate %}
+                                                            1
+                                                           {% endif %}" id="sublevel_pitch"
+                                                           name="sublevel_pitch"
+                                                            {% if sublevel.pitch_rate %}
+                                                           checked
+                                                            {% endif %}
+                                                           data-toggle="checkbox"
+
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span
+                                                        class="icon-checked"></span></span>
+                                                    <span>音名：
+                                                    <input type="text"
+                                                           style=" width: 200px; margin:-27px 0px 10px 50px;"
+                                                           value="{{ sublevel.pitch_rate }}"
+                                                           class="form-control" id="dd" name="sublevel_pitch_rate"
+                                                           placeholder="请填写占比"></span>
+                                                </label>
+
+
+                                                <label class="checkbox" for="sublevel_sing">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.sing_rate %} 1{% else %}0{% endif %}"
+                                                           id="sublevel_sing"
+                                                            {% if sublevel.sing_rate %} checked {% endif %}
+                                                           data-toggle="checkbox" name="sublevel_sing"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span
+                                                        class="icon-checked"></span></span>
+
+                                                    <span>唱名：</span>
+                                                    <input type="text"
+                                                           name="sublevel_sing_rate"
+                                                           style=" width: 200px; margin:-27px 0px 10px 50px;"
+                                                           value="{{ sublevel.sing_rate }}"
+                                                           class="form-control" id="dd"
+                                                           placeholder="请填写占比">
+                                                </label>
+
+
+                                                <label class="checkbox" for="sublevel_score">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.score_rate %} 1{% else %}0{% endif %}"
+                                                           id="sublevel_score"
+                                                           data-toggle="checkbox"
+                                                            {% if sublevel.score_rate %} checked {% endif %}
+                                                           name="sublevel_score"
+
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span
+                                                        class="icon-checked"></span></span>
+
+                                                    <span>五线谱：</span>
+                                                    <input type="text"
+                                                           name="sublevel_score_rate"
+                                                           value="{{ sublevel.score_rate }}"
+                                                           style=" width: 200px; margin:-27px 0px 10px 50px;"
+                                                           class="form-control" id="dd"
+                                                           placeholder="请填写占比">
+                                                </label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row ">
+
+
+                                        <div class="col-sm-6">
+                                            <div class="row">
+
+
+                                                <div class="col-sm-12 form-group">
+                                                    {#                                             <h5 class="demo-panel-title">提示</h5>#}
+                                                    {#                                        有提示气球（从琴键对应位置飞出的气球）的占比（*）#}
+                                                    <label for="sublevel_hint_rate"
+
+                                                           class="col-sm-3 control-label">提示气球:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="sublevel_hint_rate"
+                                                               name="sublevel_hint_rate"
+                                                               value="{{ sublevel.hint_rate }}"
+                                                               style=" width: 200px;"
+                                                               placeholder="默认占比">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row">
+                                                <div class="col-sm-12 form-group">
+                                                    <label for="sublevel_pop_interval"
+                                                           class="col-sm-3 control-label">气球速度:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control"
+                                                               id="sublevel_pop_interval"
+                                                               style=" width: 200px; "
+                                                               value="{{ sublevel.pop_interval }}"
+                                                               name="sublevel_pop_interval"
+                                                               placeholder="输入时间（s）">
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="sublevel_desc"
+                                                           class="col-sm-3 control-label">气球停留时间:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="sublevel_desc"
+                                                               name="sublevel_fly_time"
+                                                               value="{{ sublevel.fly_time }}"
+                                                               style=" width: 200px; "
+                                                               placeholder="输入时间（s）">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="sublevel_desc"
+                                                           class="col-sm-3 control-label">关卡时长:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="sublevel_desc"
+                                                               name="sublevel_level_time"
+                                                               style=" width: 200px; "
+                                                               value="{{ sublevel.level_time }}"
+                                                               placeholder="输入时间（s）">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+
+                                        <div class="col-sm-6">
+                                            <h5 class="demo-panel-title">发布状态:</h5>
+                                            <div style="padding: 1px 1px 1px 20px">
+
+
+                                                <label><input name="publish" {% if sublevel.status == 1 %}
+                                                              checked {% endif %} type="radio"
+                                                              value="{{ sublevel.status }}"/>发布 </label>
+                                                <label><input name="publish" {% if sublevel.status == 0 %}
+                                                              checked {% endif %} type="radio"
+                                                              value="{{ sublevel.status }}"/>不发布 </label>
+                                            </div>
+
+                                            {#                                                <label class="checkbox" for="checkbox4">#}
+                                            {#                                                    <input type="checkbox" checked="checked" value="" id="checkbox4"#}
+                                            {#                                                           data-toggle="checkbox"#}
+                                            {#                                                           disabled="" class="custom-checkbox"><span class="icons"><span#}
+                                            {#                                                        class="icon-unchecked"></span><span#}
+                                            {#                                                        class="icon-checked"></span></span>#}
+                                            {#                                                    禁用效果#}
+                                            {#                                                </label>#}
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12" style="padding-left:60px">
+
+                                            <div class="col-sm-6" style="">
+                                                <h5 class="demo-panel-title">上键 小字一组</h5>
+
+                                                <label class="checkbox " for="up_little_c1">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.oct.up_o1 and sublevel.oct.up_o1.c %} 1 {% else %}0 {% endif %}"
+                                                           id="up_little_c1"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_c1"
+                                                            {% if sublevel.oct.up_o1 and sublevel.oct.up_o1.c %}
+                                                           checked {% endif %}
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>c1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+                                                               class="form-control" id="dd"
+                                                                {#                                                               {% if sublevel.oct.up_o1 %} checked {% endif %}#}
+                                                                {% if sublevel.oct.up_o1 %}
+                                                               value="{{ sublevel.oct.up_o1.c }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               name="up_little_c1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_d1">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.oct.up_o1 and sublevel.oct.up_o1.d %} 1 {% else %}0 {% endif %}"
+                                                           id="up_little_d1"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_d1"
+                                                            {% if sublevel.oct.up_o1 and sublevel.oct.up_o1.d %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>d1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.up_o1 %}
+                                                               value="{{ sublevel.oct.up_o1.d }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_d1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_e1">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.oct.up_o1 and sublevel.oct.up_o1.e %} 1 {% else %}0 {% endif %}"
+                                                           id="up_little_e1"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_e1"
+                                                            {% if sublevel.oct.up_o1 and sublevel.oct.up_o1.e %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>e1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+                                                               class="form-control" id="dd"
+                                                               name="up_little_e1_rate"
+
+                                                                {% if sublevel.oct.up_o1 %}
+                                                               value="{{ sublevel.oct.up_o1.e }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_f1">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.oct.up_o1 and sublevel.oct.up_o1.f %} 1 {% else %}0 {% endif %}"
+                                                           id="up_little_f1"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_f1"
+                                                            {% if sublevel.oct.up_o1 and sublevel.oct.up_o1.f %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>f1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.up_o1 %}
+                                                               value="{{ sublevel.oct.up_o1.f }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_f1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_g1">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.oct.up_o1 and sublevel.oct.up_o1.g %} 1 {% else %}0 {% endif %}"
+                                                           id="up_little_g1"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_g1"
+                                                            {% if sublevel.oct.up_o1 and sublevel.oct.up_o1.g %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>g1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.up_o1 %}
+                                                               value="{{ sublevel.oct.up_o1.g }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_g1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_a1">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.oct.up_o1 and sublevel.oct.up_o1.a %} 1 {% else %}0 {% endif %}"
+                                                           id="up_little_a1"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_a1"
+                                                            {% if sublevel.oct.up_o1 and sublevel.oct.up_o1.a %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>a1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.up_o1 %}
+                                                               value="{{ sublevel.oct.up_o1.a }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_a1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_b1">
+                                                    <input type="checkbox"
+                                                           value="{% if sublevel.oct.up_o1 and sublevel.oct.up_o1.b %} 1 {% else %}0 {% endif %}"
+                                                           id="up_little_b1"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_b1"
+                                                            {% if sublevel.oct.up_o1 and sublevel.oct.up_o1.b %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>b1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.up_o1 %}
+                                                               value="{{ sublevel.oct.up_o1.b }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_b1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+
+                                            </div>
+                                            <div class="col-sm-6" style="">
+                                                <h5 class="demo-panel-title">上键 小字组</h5>
+
+                                                <label class="checkbox" for="up_little_c">
+                                                    <input type="checkbox" value="0" id="up_little_c"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_c"
+                                                            {% if sublevel.oct.up_o and sublevel.oct.up_o.c %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>c：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               class="form-control" id="dd"
+                                                               name="up_little_c_rate"
+
+                                                                {% if sublevel.oct.up_o %} checked {% endif %}
+
+
+                                                                {% if sublevel.oct.up_o %}
+                                                               value="{{ sublevel.oct.up_o.c }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_d">
+                                                    <input type="checkbox" value="0" id="up_little_d"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_d"
+                                                            {% if sublevel.oct.up_o and sublevel.oct.up_o.d %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>d：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+
+                                                                {% if sublevel.oct.up_o %}
+                                                               value="{{ sublevel.oct.up_o.d }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_d_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_e">
+                                                    <input type="checkbox" value="0" id="up_little_e"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_e"
+                                                            {% if sublevel.oct.up_o and sublevel.oct.up_o.e %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>e：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+
+                                                                {% if sublevel.oct.up_o %}
+                                                               value="{{ sublevel.oct.up_o.e }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_e_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_f">
+                                                    <input type="checkbox" value="0" id="up_little_f"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_f"
+                                                            {% if sublevel.oct.up_o and sublevel.oct.up_o.f %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>f：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                                {% if sublevel.oct.up_o %} checked {% endif %}
+
+                                                                {% if sublevel.oct.up_o %}
+                                                               value="{{ sublevel.oct.up_o.f }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_f_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_g">
+                                                    <input type="checkbox" value="0" id="up_little_g"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_g"
+                                                            {% if sublevel.oct.up_o and sublevel.oct.up_o.g %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>g：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                                {% if sublevel.oct.up_o %} checked {% endif %}
+
+                                                                {% if sublevel.oct.up_o %}
+                                                               value="{{ sublevel.oct.up_o.a }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_g_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_a">
+                                                    <input type="checkbox" value="0" id="up_little_a"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_a"
+                                                            {% if sublevel.oct.up_o and sublevel.oct.up_o.a %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>a：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+
+                                                                {% if sublevel.oct.up_o %}
+                                                               value="{{ sublevel.oct.up_o.b }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_a_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="up_little_b">
+                                                    <input type="checkbox" value="0" id="up_little_b"
+                                                           data-toggle="checkbox"
+                                                           name="up_little_b"
+                                                            {% if sublevel.oct.up_o and sublevel.oct.up_o.b %}
+                                                           checked {% endif %}
+
+                                                            {% if sublevel.oct.up_o %}
+                                                           value="{{ sublevel.oct.up_o.b }}"
+                                                            {% else %} value=""
+                                                            {% endif %}
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>b：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                                {% if sublevel.oct.up_o %}
+                                                               value="{{ sublevel.oct.up_o.b }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="up_little_b_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row" id="音域选择">
+                                        <div class="col-sm-12" style="padding-left:60px">
+                                            <div class="col-sm-6">
+                                                <h5 class="demo-panel-title">下键 小字一组</h5>
+
+                                                <label class="checkbox" for="down_little_c1">
+                                                    <input type="checkbox" value="0" id="down_little_c1"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_c1"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o1 and sublevel.oct.down_o1.c %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>c1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.down_o1 %}
+                                                               value="{{ sublevel.oct.down_o1.c }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_c1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_d1">
+                                                    <input type="checkbox" value="0" id="down_little_d1"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_d1"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o1 and sublevel.oct.down_o1.d %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>d1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.down_o1 %}
+                                                               value="{{ sublevel.oct.down_o1.d }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_d1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_e1">
+                                                    <input type="checkbox" value="0" id="down_little_e1"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_e1"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o1 and sublevel.oct.down_o1.e %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>e1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.down_o1 %}
+                                                               value="{{ sublevel.oct.down_o1.e }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_e1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_f1">
+                                                    <input type="checkbox" value="0" id="down_little_f1"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_f1"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o1 and sublevel.oct.down_o1.f %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>f1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.down_o1 %}
+                                                               value="{{ sublevel.oct.down_o1.f }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_f1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_g1">
+                                                    <input type="checkbox" value="0" id="down_little_g1"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_g1"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o1 and sublevel.oct.down_o1.g %}
+                                                           checked {% endif %}
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>g1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.down_o1 %}
+                                                               value="{{ sublevel.oct.down_o1.g }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_g1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_a1">
+                                                    <input type="checkbox" value="0" id="down_little_a1"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_a1"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o1 and sublevel.oct.down_o1.a %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>a1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+                                                                {% if sublevel.oct.down_o1 %} checked {% endif %}
+
+                                                                {% if sublevel.oct.down_o1 %}
+                                                               value="{{ sublevel.oct.down_o1.a }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_a1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_b1">
+                                                    <input type="checkbox" value="0" id="down_little_b1"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_b1"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o1 and sublevel.oct.down_o1.b %}
+                                                           checked {% endif %}
+
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>b1：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 50px;"
+
+                                                                {% if sublevel.oct.down_o1 %}
+                                                               value="{{ sublevel.oct.down_o1.b }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_b1_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+
+                                            </div>
+                                            <div class="col-sm-6" style="">
+                                                <h5 class="demo-panel-title">下键 小字组</h5>
+
+                                                <label class="checkbox" for="down_little_c">
+                                                    <input type="checkbox" value="0" id="down_little_c"
+                                                           data-toggle="checkbox"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+
+                                                            {% if sublevel.oct.down_o and sublevel.oct.down_o.c %}
+                                                           checked {% endif %}
+
+
+                                                           name="down_little_c"
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>c：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                                {% if sublevel.oct.down_o %}
+                                                               value="{{ sublevel.oct.down_o.c }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_c_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_d">
+                                                    <input type="checkbox" value="0" id="down_little_d"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_d"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o and sublevel.oct.down_o.d %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>d：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                                {% if sublevel.oct.down_o %}
+                                                               value="{{ sublevel.oct.down_o.d }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_d_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_e">
+                                                    <input type="checkbox" value="0" id="down_little_e"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_e"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o and sublevel.oct.down_o.e %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>e：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                                {% if sublevel.oct.down_o %}
+                                                               value="{{ sublevel.oct.down_o.e }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_e_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_f">
+                                                    <input type="checkbox" value="0" id="down_little_f"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_f"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o  and sublevel.oct.down_o.f %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>f：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                                {% if sublevel.oct.down_o %}
+                                                               value="{{ sublevel.oct.down_o.f }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_f_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_g">
+                                                    <input type="checkbox" value="0" id="down_little_g"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_g"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o and sublevel.oct.down_o.g %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>g：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                                {% if sublevel.oct.down_o %}
+                                                               value="{{ sublevel.oct.down_o.g }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_g_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_a">
+                                                    <input type="checkbox" value="0" id="down_little_a"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_a"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+                                                            {% if sublevel.oct.down_o and sublevel.oct.down_o.a %}
+                                                           checked {% endif %}
+
+
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>a：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+
+                                                                {% if sublevel.oct.down_o %}
+                                                               value="{{ sublevel.oct.down_o.a }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               class="form-control" id="dd"
+                                                               name="down_little_a_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+                                                <label class="checkbox" for="down_little_b">
+                                                    <input type="checkbox" value="0" id="down_little_b"
+                                                           data-toggle="checkbox"
+                                                           name="down_little_b"
+                                                           onclick="javascript:if(this.value=='1'){this.value='0'}else{this.value='1'};"
+
+                                                            {% if sublevel.oct.down_o and sublevel.oct.down_o.b %}
+                                                           value="{{ sublevel.oct.down_o.b }}"
+                                                            {% else %} value=""
+                                                            {% endif %}
+                                                           class="custom-checkbox"><span class="icons"><span
+                                                        class="icon-unchecked"></span><span class="icon-checked"></span></span>
+                                                    <span>b：
+                                                        <input type="text"
+                                                               style=" width: 200px; margin:-31px 0px 10px 20px;"
+                                                               class="form-control" id="dd"
+                                                                {% if sublevel.oct.down_o %}
+                                                               value="{{ sublevel.oct.down_o.b }}"
+                                                                {% else %} value=""
+                                                                {% endif %}
+                                                               name="down_little_b_rate"
+                                                               placeholder="请填写占比">
+                                                    </span>
+                                                </label>
+
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row col-sm-12">
+
+
+                                        <div class="col-sm-6">
+                                            关卡背景：<a href="{{ sublevel.bgp_path }}">{{ sublevel.bgp_name }}</a>
+                                            {#                                            <div class="row">#}
+                                            {##}
+                                            {#                                            <img src="/{{ sublevel.bgp_path }}" height="200" width="200" />#}
+                                            {#                                                <div>#}
+                                        </div>
+
+
+                                        <div class="col-sm-6">
+                                            关卡音乐：<a href="{{ sublevel.bgm_path }}">{{ sublevel.bgm_name }}</a>
+
+                                            {#                                            <input id="" href="{{ sublevel.bgp_path }}" name="" type="file">#}
+                                        </div>
+
+                                    </div>
+
+                                    {#添加背景图片#}
+                                    <div  class="row col-sm-12">
+
+                                        <div  hidden class="col-sm-6">
+                                            <span>添加关卡背景</span>
+                                            <input id="sublevel_background" name="sublevel_background" type="file">
+                                        </div>
+
+                                        {# 添加背景音乐#}
+                                        <div class="col-sm-6">
+                                            <span>添加关卡音乐</span>
+                                            <input id="sublevel_backmusic" name="sublevel_backmusic" type="file">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+
+                                        <div class="col-lg-12 col-lg-offset-5">
+                                            <button type="submit" class="btn btn-primary" style="margin-top: 20px;">
+                                                保存并提交
+                                            </button>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    </div> <!-- /.row -->
+{% endblock list_body %}
+
+
+{% block body_js %}
+
+    <script src="{{ static('js/fileinput.js') }}"></script>
+    <script src="{{ static('js/fileinput_locale_zh.min.js') }}"></script>
+
+    <script type="text/javascript">
+        //初始化fileinput控件（第一次初始化）
+        function initFileInput(ctrlName, uploadUrl) {
+            var control = $('#' + ctrlName);
+            control.fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: uploadUrl, //上传的地址
+                allowedFileExtensions: ['jpg', 'png', 'gif', 'mp3', 'midi'],//接收的文件后缀
+                showUpload: false, //是否显示上传按钮
+                showCaption: false,//是否显示标题
+                browseClass: "btn btn-primary", //按钮样式
+                previewFileIcon: "<i class='glyphicon glyphicon-king'></i>"
+            });
+        }
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            initFileInput("sublevel_background", "/User/EditPortrait");
+            initFileInput("sublevel_backmusic", "/User/EditPortrait");
+        });
+    </script>
+
+    <script type="text/javascript">
+        $('input[id=lefile]').change(function () {
+            $('#photoCover').val($(this).val());
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#dataTables').dataTable({
+                "dom": 'ltpr',
+                "language": {
+                    "url": "{{ static('lib/js/dataTable.Chinese.json') }}"
+                },
+                "responsive": true,
+                "lengthChange": false,
+                "serverSide": true,
+                "ajax": {
+                    url: "/musicballoon/datatable/",
+                    type: "POST",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                    },
+                },
+                "columns": {{ list_fields.to_json()|safe }},
+                "searchCols": [
+                    {% for col in list_fields.to_list() -%}
+                        {% if col.name in searches -%}
+                            {{ searches[col.name]|jsonify|safe }},
+                        {% else %}
+                            null,
+                        {%- endif %}
+                    {%- endfor %}
+                ],
+                "columnDefs": [],
+                "order": [[1, 'desc']],
+                "processing": true,
+                "deferRender": true,
+                {#
+                {% if not searches -%}
+                "deferLoading": true,
+                {%- endif %}
+                #}
+                "pageLength": 10,
+            });
+
+
+            $('#function').change(function () {
+                var $selAll = $('#select-allpage');
+                if ($(this).val() == 'set_refunded') {
+                    $selAll.removeAttr('checked');
+                    $selAll.attr('disabled', 'disabled');
+                } else {
+                    $('#select-allpage').removeAttr('disabled');
+                }
+            });
+            //=== search click ===
+            $("#id-search-btn").on("keyup click", function () {
+                search();
+            });
+
+            $("#id-th-checkbox").on("change", function () {
+                $("#id-list").find("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+            });
+
+
+            $("#select-allpage").on("click", function () {
+                $("#id-th-checkbox").prop("checked", $("#select-allpage").prop("checked"));
+                $("#id-list").find("input[type=checkbox]").prop("checked", $("#select-allpage").prop("checked"));
+            });
+
+        });
+    </script>
+
+
+
+
+{% endblock %}

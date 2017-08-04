@@ -1,0 +1,209 @@
+{% extends "base_form.html" %}
+
+{% block csscontent %}
+    <link href="{{ static('lib/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ static('css/bootstrap-markdown.min.css') }}" rel="stylesheet">
+    {#            <link href="{{ static('css/flat-ui.css') }}" rel="stylesheet">#}
+    <link href="http://cdn.bootcss.com/bootstrap-fileinput/4.3.6/css/fileinput.css" rel="stylesheet">
+
+{% endblock %}
+
+
+
+{% macro form_input_clean(field, label_class='', input_class='', input_type='text', placeholder="", attrs=None, kwargs=None) -%}
+    {% if field.html_name not in hide_fields %}
+        <div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+            {% if input_type == "date" %}
+                {% if kwargs is none %}
+                    {% set kwargs = {'max': "9999-12-31"} %}
+                {% elif 'max' not in kwargs %}
+                    {% set _ = kwargs.update({'max': "9999-12-31"}) %}
+                {% endif %}
+            {% endif %}
+            {{ input_widget(input_type, field.html_name, field.value() if field.value() is not none else '', "form-control", field.id_for_label, placeholder|default(field.help_text, true), attrs=attrs, kwargs=kwargs) }}
+            {{ field_error(field) }}
+        </div>
+    {% endif %}
+{%- endmacro %}
+
+
+{% macro segment_input(name,value) %}
+    <input class="form-control" type="text" id="id_{{ name }}" name="{{ name }}" value="{{ value }}"
+           placeholder="{{ value }}">
+{% endmacro %}
+
+
+
+{% block form_body %}
+    <form id="index_form" name="index_form" action='#'
+          role="form" method="post" class="form-horizontal"
+          enctype="multipart/form-data">
+
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        {% if action %}
+            <input hidden name="target_id" value="{{ target_id }}">
+            {#            <input hidden name="action" value="{{ action }}">#}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+
+                        {% if messages %}
+                            <div class="alert alert-success alert-dismissable">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                {{ messages|join('|') }}
+                            </div>
+                        {% endif %}
+
+
+                        <div class="row col-sm-12">
+                            <div class="col-sm-6">
+
+                                <h4>基本信息</h4>
+                                <div class="form-group">
+                                    {{ form_textarea(form.description, "col-sm-2 control-label", "col-sm-10", "") }}
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12">
+
+                            <div class="col-sm-6">
+                                <h4>目标音频： <a
+                                        href="{{ form.target_audio_path.value() }}"> {{ form.target_audio_name.value() }}</a>
+                                </h4>
+                            </div>
+
+
+                            <div class="col-sm-6">
+                                <h4>描述音频:<a
+                                        href="{{ form.desc_audio_path.value() }}"> {{ form.desc_audio_name.value() }}</a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="row col-sm-12">
+                            <div class="col-sm-6">
+                                <h4>添加目标音频</h4>
+                                <input style="width:200px;height: 200px;" id="bkp_target_audio_uploader"
+                                       name="target_audio"
+                                       type="file">
+
+                            </div>
+
+                            <div class="col-sm-6">
+                                <h4>添加描述音频</h4>
+                                <input style="width:200px;height: 200px;" id="bkp_desc_audio_uploader"
+                                       name="desc_audio"
+                                       type="file">
+
+                            </div>
+
+                        </div>
+                        <div class="col-lg-12 col-lg-offset-5">
+                            <button type="submit" class="btn btn-primary sm-lg-4">保存</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+    <script src="{{ static('js/fileinput.js') }}"></script>
+    <script src="{{ static('js/fileinput_locale_zh.min.js') }}"></script>
+    {#    常用数据处理函数#}
+    <script src="{{ static('js/util.js') }}"></script>
+
+    <script>
+        {#    本页面逻辑处理函数#}
+
+
+    </script>
+
+    <script>
+        {#    页面初始化－－初始化上传插件#}
+        $(document).ready(function () {
+            initFileInput("bkp_target_audio_uploader", "/User/EditPortrait");
+            initFileInput("bkp_desc_audio_uploader", "/User/EditPortrait");
+            active_valid();
+        });
+
+    </script>
+
+    <script>
+
+        function getFormInfo(formid) {
+            var params = getElements(formid);
+            var tr_string = '<tr><td>id</td>';
+            for (var i = 0; i < params.length; i++) {
+                tr_string += '<td>';
+                tr_string += '<div class="form-group" >';
+                tr_string += ('<input class="form-control" type="text" id=' + params[i].name);
+                tr_string += ('   name=' + params[i].name);
+
+                if (params[i].value != '') {
+                    tr_string += ('   value=' + params[i].value);
+                    tr_string += ('   placeholder=' + params[i].value);
+                } else {
+                    tr_string += ('   value="" ');
+
+                    tr_string += ('   placeholder="" ' );
+                }
+                tr_string += (' >');
+                tr_string += '</div>';
+                tr_string += '</td>';
+                {#                alert(params[i].name + '---' + params[i].value);#}
+            }
+            tr_string += '<td><a type="button" class="btn ">复制</a></td>';
+            tr_string += '<td><a type="button" class="btn btn-segment-delet">删除</a></td>';
+            add_table_tr('target_table', tr_string);
+            auto_add_table_id();
+
+
+            append_valid('index_form', 'target_name');
+            append_valid('index_form', 'pic_id');
+            append_valid('index_form', 'name');
+            append_valid('index_form', 'pic_name');
+
+        }
+    </script>
+
+    <script type="text/html" class="segment-html">
+        <div>
+            <label class="col-sm-2 control-label">目标名称:</label>
+            <input name='name' type="text">
+            <label class="col-sm-2 control-label">左上目标:</label>
+
+            <input name='top_left_x' class="col-sm-1" value="" type="text">
+            <input name='top_left_y' class="col-sm-1" value="" type="text">
+            <label class="col-sm-2 control-label">标签信息:</label>
+            <input name='bottom_right_x' class="col-sm-1" value="" type="text">
+            <input name='bottom_right_y' class="col-sm-1" value="" type="text">
+            <button type="button" class="btn btn-primary btn-segment-delete">复制</button>
+            <button type="button" class="btn btn-primary btn-segment-delete">删除</button>
+        </div>
+    </script>
+
+
+    <script type="text/javascript">
+        $(".btn-segment-delete").on("click", function () {
+            {#            $(this).parent().remove();#}
+            $(this).remove();
+        });
+        $('#btn-add-segment').click(function () {
+            $('#add-new-segment').append($('.segment-html').html());
+            $(".btn-segment-delete").on("click", function () {
+                $(this).parent().remove();
+            });
+        });
+    </script>
+
+{% endblock %}

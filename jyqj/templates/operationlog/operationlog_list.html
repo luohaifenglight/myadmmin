@@ -1,0 +1,110 @@
+{% extends "base_list.html" %}
+
+{% block more_filter -%}
+{%- endblock more_filter %}
+
+{% block list_body %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row mbh">
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="dataTables">
+                            <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>访问IP</th>
+                                <th>访问时间</th>
+                                <th>操作路径</th>
+                                <th>操作人</th>
+                                <th>操作行为</th>
+                            </tr>
+                            </thead>
+                            <tbody id="id-list">
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.dataTable_wrapper -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+    </div> <!-- /.row -->
+{% endblock list_body %}
+
+{% block body_js %}
+<script type="text/javascript">
+$(document).ready(function () {
+    var table = $('#dataTables').dataTable({
+        "dom": 'ltpr',
+        "language": {
+            "url": "{{ static('lib/js/dataTable.Chinese.json') }}"
+        },
+        "responsive": true,
+        "lengthChange": false,
+        "serverSide": true,
+        "ajax": {
+            url: "/operationlog/datatable/",
+            type: "POST",
+            data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+        },
+        "columns": {{ list_fields.to_json()|safe }},
+        "searchCols": [
+            {% for col in list_fields.to_list() -%}
+            {% if col.name in searches -%}
+            {{ searches[col.name]|jsonify|safe }},
+            {% else %}
+            null,
+            {%- endif %}
+            {%- endfor %}
+        ],
+        "columnDefs": [
+
+        ],
+        "order": [[2, 'desc']],
+        "processing": true,
+        "deferRender": true,
+        {#
+        {% if not searches -%}
+        "deferLoading": true,
+        {%- endif %}
+        #}
+        "pageLength": 10,
+    });
+
+
+    $('#function').change(function(){
+        var $selAll = $('#select-allpage');
+        if($(this).val()=='set_refunded'){
+            $selAll.removeAttr('checked');
+            $selAll.attr('disabled','disabled');
+        }else{
+            $('#select-allpage').removeAttr('disabled');
+        }
+    });
+    //=== search click ===
+    $("#id-search-btn").on("keyup click", function () {
+        search();
+    });
+
+    $("#id-th-checkbox").on("change", function () {
+        $("#id-list").find("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    });
+
+
+    $("#select-allpage").on("click", function () {
+        $("#id-th-checkbox").prop("checked", $("#select-allpage").prop("checked"));
+        $("#id-list").find("input[type=checkbox]").prop("checked", $("#select-allpage").prop("checked"));
+    });
+
+});
+</script>
+
+{% endblock %}

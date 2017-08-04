@@ -1,0 +1,174 @@
+{% extends "base_form.html" %}
+
+{% block csscontent %}
+    <link href="{{ static('lib/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ static('css/bootstrap-markdown.min.css') }}" rel="stylesheet">
+    {#            <link href="{{ static('css/flat-ui.css') }}" rel="stylesheet">#}
+    <link href="http://cdn.bootcss.com/bootstrap-fileinput/4.3.6/css/fileinput.css" rel="stylesheet">
+
+{% endblock %}
+
+
+
+{% macro form_input_clean(field, label_class='', input_class='', input_type='text', placeholder="", attrs=None, kwargs=None) -%}
+    {% if field.html_name not in hide_fields %}
+        <div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+            {% if input_type == "date" %}
+                {% if kwargs is none %}
+                    {% set kwargs = {'max': "9999-12-31"} %}
+                {% elif 'max' not in kwargs %}
+                    {% set _ = kwargs.update({'max': "9999-12-31"}) %}
+                {% endif %}
+            {% endif %}
+            {{ input_widget(input_type, field.html_name, field.value() if field.value() is not none else '', "form-control", field.id_for_label, placeholder|default(field.help_text, true), attrs=attrs, kwargs=kwargs) }}
+            {{ field_error(field) }}
+        </div>
+    {% endif %}
+{%- endmacro %}
+
+
+{% macro segment_input(name,value) %}
+    <input class="form-control" type="text" id="id_{{ name }}" name="{{ name }}" value="{{ value }}"
+           placeholder="{{ value }}">
+{% endmacro %}
+
+
+
+{% block form_body %}
+    <form id="index_form" name="index_form" action='#'
+          role="form" method="post" class="form-horizontal"
+          enctype="multipart/form-data">
+
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        {% if action %}
+            <input hidden name="score_id" value="{{ score_id }}">
+            <input hidden name="action" value="{{ action }}">
+        {% endif %}
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+
+                        {% if messages %}
+                            <div class="alert alert-success alert-dismissable">
+                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                {{ messages|join('|') }}
+                            </div>
+                        {% endif %}
+
+
+                        <div class="row col-sm-12">
+                            <div class="col-sm-6">
+
+                                <div class="form-group">
+                                    {{ form_input(form.name, "col-sm-2 control-label", "col-sm-10", "") }}
+                                </div>
+                                <div class="form-group" style="    margin-left: -50px;">
+                                    {{ form_input_bool(form.status, "col-sm-3 control-label", "col-sm-6", "checkbox") }}
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="row col-sm-12">
+
+                            <div class="col-sm-6">
+                                <h5>欣赏曲目：
+                                    {% if form.audio_path.value() %}
+                                        <a href="{{ form.audio_path.value() }}"> {{ form.audio_name.value() }}</a>
+                                    {% else %}
+                                        未上传
+                                    {% endif %}
+                                </h5>
+                            </div>
+
+
+                            <div class="col-sm-6">
+                                <h5>封面:
+                                    {% if form.poster_path.value() %}
+                                        <a href="{{ form.poster_path.value() }}"> {{ form.poster_name.value() }}</a>
+                                    {% else %}
+                                        未上传
+                                    {% endif %}
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="row col-sm-12">
+                            <div class="col-sm-6">
+                                <h5>添加欣赏曲目</h5>
+                                <input style="width:200px;height: 200px;" id="score_enjoy_audio_uploader"
+                                       name="score_audio"
+                                       type="file">
+
+                            </div>
+
+                            <div class="col-sm-6">
+                                <h5>添加曲目封面</h5>
+                                <input style="width:200px;height: 200px;" id="score_enjoy_poster_uploader"
+                                       name="score_poster"
+                                       type="file">
+
+                            </div>
+
+                        </div>
+                        {% if  action  != 'check' %}
+{#                            <div class="col-lg-12 col-lg-offset-5">#}
+{#                                <button type="submit" class="btn btn-primary sm-lg-4">保存</button>#}
+{#                            </div>#}
+
+
+
+                        <div class="col-lg-2 col-lg-offset-4 " style="margin-top: 20px;">
+                            <button type="submit" class="btn btn-primary ">保存</button>
+
+                        </div>
+
+                        <div class="col-lg-2 col-lg-offset-0" style="margin-top: 20px;">
+
+                            <a class="btn btn-primary" href="/score_enjoy/score_enjoy_list/"> 取消</a>
+                        </div>
+
+
+
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+    <script src="{{ static('js/fileinput.js') }}"></script>
+    <script src="{{ static('js/fileinput_locale_zh.min.js') }}"></script>
+    {#    常用数据处理函数#}
+    <script src="{{ static('js/util.js') }}"></script>
+
+    <script>
+        {#    本页面逻辑处理函数#}
+
+
+    </script>
+
+    <script>
+        {#    页面初始化－－初始化上传插件#}
+        $(document).ready(function () {
+            initFileInput("score_enjoy_audio_uploader", "/User/EditPortrait");
+            initFileInput("score_enjoy_poster_uploader", "/User/EditPortrait");
+            active_valid();
+        });
+
+    </script>
+
+    <script>
+
+
+    </script>
+
+
+{% endblock %}

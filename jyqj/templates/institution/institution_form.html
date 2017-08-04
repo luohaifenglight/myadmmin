@@ -1,0 +1,132 @@
+{% extends "base_form.html" %}
+
+{% block form_body %}
+{% macro form_select_connect(field, province, ajax_url, selected_options,label_class='', input_class='', attrs=None, multiple=false) -%}
+    {# form-select #}
+<label{% if label_class %} class="{{ label_class }}"{% endif %} for="{{ field.id_for_label }}">{% if field.field.required %}<span class="text-danger">*</span> {% endif %}省份:</label>
+<div class="{{ input_class }}"><select class="form-control select2-remote" id="province" name="province"  data-ajax--url="{{ url('institution:province_choices') }}"  data-allow-clear="true" {% if field.html_name in readonly_fields or 'all' in readonly_fields  %}disabled{% endif %} data-placeholder="-----" {{attrs}}>
+        {% if field.value() %}
+
+                <option value="{{ province.id }}" selected="selected">{{ province.text }}</option>
+
+        {% endif %}
+    </select></div>
+{{ field_label(field, label_class) }}
+<div class="{{ input_class }}{% if field.errors %} has-error{% endif %}">
+     <select class="form-control select2-remote{% if multiple %}-multiple{% endif %}" id="{{ field.id_for_label }}" name="{{ field.html_name }}" {% if multiple %}multiple="multiple"{% endif %}   data-allow-clear="true" {% if field.html_name in readonly_fields or 'all' in readonly_fields  %}disabled{% endif %} data-placeholder="-----" {{attrs}}>
+        {% if field.value() %}
+            {% for opt in selected_options %}
+                <option value="{{ opt.id }}" selected="selected">{{ opt.text }}</option>
+            {% endfor %}
+        {% endif %}
+    </select>
+    {% if field.html_name in readonly_fields or 'all' in readonly_fields  %}
+        {% if isinstance(field.value(), list) %}
+            {% for val in field.value() %}
+            <input type="hidden" name="{{ field.html_name }}" value="{{ val }}">
+            {% endfor %}
+        {% else %}
+            <input type="hidden" name="{{ field.html_name }}" value="{{ field.value() or '' }}">
+        {% endif %}
+    {% endif %}
+    {{ field_error(field) }}
+</div>
+{%- endmacro %}
+
+
+
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+     <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% if form.non_field_errors() %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>{% endif %}
+
+                {% set messages = get_messages(request) %}
+                {% if messages %}
+                <div class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ messages|join('|') }}
+                </div>
+                {% endif %}
+                <div class="form-group">
+                        {{ form_input(form.name, "col-sm-2 control-label", "col-sm-2") }}
+                        {{ form_input(form.code, "col-sm-2 control-label", "col-sm-2") }}
+                </div>
+                <div class="form-group">
+                    {{ form_select(form.type, "col-sm-2 control-label", "col-sm-2") }}
+                    {{ form_input(form.concurrent_num, "col-sm-2 control-label", "col-sm-2") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_select_connect(form.city, province, url('institution:city_choices'), selected_city_options,"col-sm-2 control-label", "col-sm-2", attrs=None) }}
+                    </div>
+                <div class="form-group">
+                        {{ form_select2(form.course_system, url('institution:course_system_choices'), course_system_options,"col-sm-2 control-label", "col-sm-4", multiple=true, attrs=None, ) }}
+                    </div>
+                <div class="form-group">
+
+                    {{ form_input(form.experience_student_num, "col-sm-2 control-label", "col-sm-2") }}
+                </div>
+                <div class="col-lg-12 col-lg-offset-2">
+
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+
+
+            </div>
+        </div>
+     </div>
+</form>
+
+
+{% endblock form_body %}
+
+{% block body_js %}
+
+    <script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+    <script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+    <script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+    <script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/javascript">
+    function BindSelect(ctrlName, url, is_start) {
+    var control = $('#' + ctrlName);
+    //绑定Ajax的内容
+    $.getJSON(url, function (data) {
+        control.empty();//清空下拉框
+        var res = JSON.stringify(data);
+        //alert(res);
+        control.select2({
+            allowClear: true,
+            data:data.results,
+            placeholder:'-------',
+            formatResult: function(obj){return obj[opts.textField]},
+            formatSelection: function(obj){return obj[opts.textField]},
+            escapeMarkup: function (m) {
+                return m;
+        }
+
+        });
+        if(!is_start){
+           control.val('');
+        }
+        else{
+            control.val('{{form.city.value() }}');
+        }
+        control.change();
+    });
+}
+
+ function InitDictItem() {
+            var Name = $("#province").val() | '';
+                BindSelect("id_city", "{{url('institution:city_choices' )}}"+ "?province=" + Name, true);
+            $("#province").on("change", function (e) {
+                var Name = $("#province").val() | '';
+                BindSelect("id_city", "{{url('institution:city_choices' )}}"+ "?province=" + Name, false);
+            });
+        }
+InitDictItem()
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base_form.html" %}
+
+{% macro score_optional_template(x, y, seq) -%}
+<div style="margin-left:20%;" class="form-group">
+    <span>x坐标:</span><input name='x' type="number" value="{{ x }}" min="0">
+     <span>y坐标:</span><input name='y' type="number" value="{{ y }}" min="0">
+
+    <span>顺序:</span><input name='seq' type="number" value="{{ seq }}" min="0">
+    <button type="button" class="btn btn-primary btn-score-delete">删除</button>
+</div>
+{%- endmacro %}
+{% block form_body %}
+
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% if form.non_field_errors() %}
+                    <div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>
+                    {% endif %}
+                    {% set messages = get_messages(request) %}
+                    {% if messages %}
+                    <div class="alert {%if messages.type==messages.INFO%}alert-success{%else%}alert-danger{%endif%} alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ messages|join('|') }}
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+
+                        {{ form_input(form.name, "col-sm-2 control-label", "col-sm-4") }}
+
+                    </div>
+                    <div class="form-group">
+                    {{ form_select(form.course_system_type, "col-sm-2 control-label", "col-sm-2") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_textarea(form.desc, "col-sm-2 control-label", "col-sm-8") }}
+                    </div>
+                     <div class="form-group">
+                        {{ form_input_image(form.background_image_path, form.background_image_name, None, None, None, "col-sm-2
+                        control-label", "col-sm-4") }}
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"><a id='btn-add-score' href="#">＋添加课程坐标</a> </label>
+                    </div>
+                    <div class="form-group" id="add-new-score">
+                        {%for seg in coordinates%}
+                        {{ score_optional_template(seg.x, seg.y, seg.seq) }}
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-12 col-lg-offset-2">
+
+                        <button type="submit" class="btn btn-primary ">保存</button>
+                        <a class="btn btn-primary" href="/course_system/course_system_list/"> 取消</a>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% endblock form_body %}
+{% block body_js%}
+
+
+<script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+<script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+<script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/html" class="score-html">
+    {{ score_optional_template (0,0, 0)}}
+</script>
+<script type="text/javascript">
+    function delete_score_init() {
+        $(".btn-score-delete").on("click", function () {
+            $(this).parent().remove();
+
+        });
+    }
+    active_valid('x');
+    active_valid('y');
+    active_valid('seq');
+    delete_score_init();
+    $('#btn-add-score').click(function () {
+        console.log('start---');
+        $('#add-new-score').append($('.score-html').html());
+        active_valid('x');
+        active_valid('y');
+        active_valid('seq');
+        delete_score_init();
+    });
+</script>
+{% endblock%}

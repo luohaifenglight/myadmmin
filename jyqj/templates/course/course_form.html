@@ -1,0 +1,181 @@
+{% extends "base_form.html" %}
+
+{% macro unit_template(unit_id, unit_text, seq) -%}
+<div class="form-group">
+    <label class="col-sm-2 control-label">选择单元:</label>
+    <div class="col-sm-4">
+    <select class="form-control select2-remote"  name="unit"
+             data-ajax--url="{{ url('unit:choices') }}">
+        {% if unit_id %}
+
+        <option value="{{ unit_id }}" selected="selected">{{ unit_text }}</option>
+
+        {% endif %}
+    </select></div>
+    <span>顺序:</span><input name='seq_u' type="number" min="0" value="{{ seq }}">
+    <button type="button" class="btn btn-primary btn-unit-delete">删除</button>
+</div>
+{%- endmacro %}
+{% block form_body %}
+
+
+<form class="form-horizontal" role="form" method="POST">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    {% if form.non_field_errors() %}
+                    <div class="alert alert-danger" role="alert">{{ form.non_field_errors()|join('|') }}</div>
+                    {% endif %}
+
+                    {% set messages = get_messages(request) %}
+                    {% if messages %}
+                    <div class="alert alert-success alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ messages|join('|') }}
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+
+                        {{ form_input(form.name, "col-sm-2 control-label", "col-sm-4") }}
+
+                    </div>
+                    <div class="form-group">
+                        {{ form_textarea(form.description, "col-sm-2 control-label", "col-sm-8") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_image(form.keypoint_path, form.keypoint_name, None, None, None, "col-sm-2 control-label",
+                        "col-sm-4",) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_select2(form.course_system, url('institution:course_system_choices'), course_system_options,"col-sm-2 control-label", "col-sm-4", attrs=None, ) }}
+                    </div>
+                    <div class="form-group">
+
+                        {{ form_input(form.seq, "col-sm-2 control-label", "col-sm-4", 'number', kwargs={'min':1}) }}
+
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"><a id='btn-add-unit' href="#">＋添加单元</a> </label>
+                    </div>
+                    <div class="form-group" id="add-new-unit">
+                        {%for seg in units%}
+                        {{ unit_template(seg.unit_id, seg.unit_text, seg.seq) }}
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ form_input_bool(form.status, "col-sm-2 control-label", "col-sm-2", "checkbox") }}
+
+                    </div>
+
+                    <div class="col-lg-12 col-lg-offset-2">
+
+                        <button type="submit" id='btn-submit' class="btn btn-primary ">保存</button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% endblock form_body %}
+{% block body_js%}
+
+
+<script type="text/javascript" src="http://cdn.staticfile.org/Plupload/2.1.1/plupload.full.min.js"></script>
+<script type="text/javascript" src="{{ static('lib/js/qiniu.min.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/jquery.md5.js') }}"></script>
+<script type="text/javascript" src="{{ static('lib/js/select2.min.js') }}"></script>
+<script src="{{ static('js/hera-select2.js') }}"></script>
+<script type="text/html" class="unit-html">
+    {{ unit_template ('','','0')}}
+</script>
+<script type="text/javascript">
+    function is_exitin(value, list_value) {
+        for(var i=0; i<list_value.length;i++){
+            if (list_value[i]==value){
+                return true;
+            }
+        }
+        return false;
+    }
+    function delete_unit_init() {
+        $(".btn-unit-delete").on("click", function () {
+            $(this).parent().remove();
+
+        });
+    }
+    active_valid('unit');
+    active_valid('seq_u');
+    delete_unit_init();
+    $('#btn-add-unit').click(function () {
+        $('#add-new-unit').append($('.unit-html').html());
+        select2_init();
+        active_valid('unit');
+        active_valid('seq_u');
+        delete_unit_init();
+    });
+    $('#btn-submit').click(function () {
+        var origin_name = [];
+        var result = 1;
+        var origin_seq_1 = [];
+        $('#add-new-unit').find("select[name='unit']").each(function () {
+            var current_name = $(this).val();
+            console.log(origin_name);
+            console.log(current_name);
+            if(is_exitin(current_name,origin_name)){
+                bootbox.alert({
+            buttons: {
+               ok: {
+                    label: '确定',
+                    className: 'btn-myStyle'
+                }
+            },
+            message: '单元选择不能重复且不能为空',
+            title: "错误",
+        });
+
+            result = 0;
+            return false;
+        }
+
+            origin_name.push(current_name);
+
+        });
+        if(result == 1){
+        $('#add-new-unit').find("input[name='seq_u']").each(function () {
+            var current_seq = $(this).val();
+            console.log(origin_seq_1);
+            console.log(current_seq);
+            if(is_exitin(current_seq,origin_seq_1)){
+                bootbox.alert({
+            buttons: {
+               ok: {
+                    label: '确定',
+                    className: 'btn-myStyle'
+                }
+            },
+            message: '单元选择顺序不能重复',
+            title: "错误",
+        });
+
+            result = 0;
+            return false;
+        }
+
+
+            origin_seq_1.push(current_seq);
+
+        });
+        }
+        if (result==0){
+            return false;
+        }
+    })
+</script>
+{% endblock%}

@@ -1,0 +1,225 @@
+{% extends "base_list.html" %}
+
+{% block more_filter -%}
+<div class="form-group">
+    <label class="col-sm-2 control-label">管理员类型:</label>
+    <div class="col-sm-2">
+    <select id="type" name="type" class="form-control">
+        <option value="">全部</option>
+        <option value="0">总部管理员</option>
+        <option value="1">机构管理员</option>
+    </select>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">部门:</label>
+    <div class="col-sm-2">
+    <select id="department" name="department" class="form-control">
+        <option value="">全部</option>
+        {% for k, v in srch_opts.ADMIN_DEPARTMENT.choices %}
+        <option value="{{k}}">{{v}}</option>
+        {% endfor %}
+
+    </select>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">角色:</label>
+    <div class="col-sm-6">
+        <select  class="form-control select2-remote" id="role"
+                 name="user__belong_groups__id"
+                data-ajax--url="{{ url('accounts:group_choices') }}"
+                data-allow-clear="true" data-placeholder="-----">
+        </select>
+    </div>
+</div>
+{%- endblock more_filter %}
+
+{% block list_body %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row mbh">
+
+                    <div class="col-sm-12 dataTables_filter">
+                        <a href="{{ url('accounts:admin_create') }}" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            新增
+                        </a>
+                    </div>
+
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover" id="dataTables">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>管理员类型</th>
+                                <th>部门</th>
+                                <th>用户名</th>
+                                <th>角色</th>
+                                <th>手机号</th>
+                                <th>创建时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="id-list">
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.dataTable_wrapper -->
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+    </div> <!-- /.row -->
+{% endblock list_body %}
+
+{% block body_js %}
+<script src="{{ static('js/hera-list.js') }}"></script>
+<script type="text/javascript">
+    function reset_password(id){
+        var pwd = '';
+        bootbox.prompt({
+            size: "small",
+            title: "请输入密码",
+            callback: function(result){
+                pwd = result;
+                if (result === null) {
+                    return;
+                } else {
+                    pwd = result;
+                    $.ajax({
+                        type: "POST",
+                        url: "/accounts/admin/reset_password/",
+                        data: {
+                            "id": id,
+                            "pwd": pwd,
+                            "csrfmiddlewaretoken": "{{ csrf_token }}",
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            search();
+                        },
+                    });
+                }
+            }/* result = String containing user input if OK clicked or null if Cancel clicked */
+        });
+
+    }
+    function reset_status(id) {
+        bootbox.confirm({
+            size: "small",
+            title: "冻结状态",
+            message: "确认更改",
+            callback: function (result) {
+                if(result){
+                    $.ajax({
+                        type: "POST",
+                        url: "/accounts/admin/reset_status/",
+                        data: {
+                            "id": id,
+                            "csrfmiddlewaretoken": "{{ csrf_token }}",
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            //search();
+                            search();
+                        },
+                    });
+                }
+            }
+        });
+    }
+$(document).ready(function () {
+    var table = $('#dataTables').dataTable({
+        "dom": 'ltpr',
+        "language": {
+            "url": "{{ static('lib/js/dataTable.Chinese.json') }}"
+        },
+        "responsive": true,
+        "lengthChange": false,
+        "serverSide": true,
+        "ajax": {
+            url: "/accounts/admin_datatable/",
+            type: "POST",
+            data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+        },
+        "columns": {{ list_fields.to_json()|safe }},
+        "searchCols": [
+            {% for col in list_fields.to_list() -%}
+            {% if col.name in searches -%}
+            {{ searches[col.name]|jsonify|safe }},
+            {% else %}
+            null,
+            {%- endif %}
+            {%- endfor %}
+        ],
+        "columnDefs": [
+            {
+                "targets": [8],
+                 "render": function ( data, type, full, meta ) {
+                    var s = full.status;
+                    var status_show = '冻结';
+                    if (s=='已冻结'){
+                        status_show = '解冻';
+                    }
+                     return '<a href="/accounts/admin/admin_modify/'+data+'">编辑</a>&nbsp;' +
+                         '<a href="#" onclick="reset_password('+data+')">重置密码</a>&nbsp;' +
+                         '<a href="#" onclick="reset_status('+data+')">'+ status_show+'</a>&nbsp;';
+                },
+            },
+        ],
+        "order": [[0, 'desc']],
+        "processing": true,
+        "deferRender": true,
+        {#
+        {% if not searches -%}
+        "deferLoading": true,
+        {%- endif %}
+        #}
+        "pageLength": 10,
+    });
+
+
+    $('#function').change(function(){
+        var $selAll = $('#select-allpage');
+        if($(this).val()=='set_refunded'){
+            $selAll.removeAttr('checked');
+            $selAll.attr('disabled','disabled');
+        }else{
+            $('#select-allpage').removeAttr('disabled');
+        }
+    });
+    //=== search click ===
+    $("#id-search-btn").on("keyup click", function () {
+        search();
+    });
+
+    $("#id-th-checkbox").on("change", function () {
+        $("#id-list").find("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+    });
+
+
+     $('#collapseExample').find('select').each(function () {
+        $(this).change(function(){
+            search();
+            });
+        });
+
+
+    $("#select-allpage").on("click", function () {
+        $("#id-th-checkbox").prop("checked", $("#select-allpage").prop("checked"));
+        $("#id-list").find("input[type=checkbox]").prop("checked", $("#select-allpage").prop("checked"));
+    });
+
+});
+</script>
+
+{% endblock %}
