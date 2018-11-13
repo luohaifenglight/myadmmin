@@ -40,8 +40,8 @@ if RELEASE == 'test':
 
 
 elif RELEASE == 'online':
-    OSSCONF_OSS_ID = 'LTAIRAp2332QR6g8'
-    OSSCONF_OSS_SECRET = 'Z9C5HUWxT8GKbqAd646dZjBvJBIp9u'
+    OSSCONF_OSS_ID = '..'
+    OSSCONF_OSS_SECRET = '...'
     OSSCONF_BUCKET_KEY = 'yyjs-online'
     OSSCONF_END_POINT = 'http://oss-cn-beijing.aliyuncs.com'
     OSS_UPLOAD_FILE_PATH = 'http://yyjs-online.oss-cn-beijing.aliyuncs.com/'
