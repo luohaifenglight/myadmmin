@@ -32,8 +32,8 @@ REDIS_PASSWORD = ''
 RELEASE = 'test'
 
 if RELEASE == 'test':
-    OSSCONF_OSS_ID = 'LTAIRAp2332QR6g8'
-    OSSCONF_OSS_SECRET = 'Z9C5HUWxT8GKbqAd646dZjBvJBIp9u'
+    OSSCONF_OSS_ID = '..'
+    OSSCONF_OSS_SECRET = '...'
     OSSCONF_BUCKET_KEY = 'yyjs-test'
     OSSCONF_END_POINT = 'http://oss-cn-beijing.aliyuncs.com'
     OSS_UPLOAD_FILE_PATH = 'http://yyjs-test.oss-cn-beijing.aliyuncs.com/'
@@ -47,8 +47,8 @@ elif RELEASE == 'online':
     OSS_UPLOAD_FILE_PATH = 'http://yyjs-online.oss-cn-beijing.aliyuncs.com/'
 
 elif RELEASE == 'me':
-    OSSCONF_OSS_ID = 'LTAIhIMG2vs5avGU'
-    OSSCONF_OSS_SECRET = 'wbJiFGLKqmH3hPZy3S3lhEQujzGy24'
+    OSSCONF_OSS_ID = '..'
+    OSSCONF_OSS_SECRET = '...'
     OSSCONF_BUCKET_KEY = 'admin-uploadfiles-yyjs'
     OSSCONF_END_POINT = 'http://oss-cn-beijing.aliyuncs.com'
     OSS_UPLOAD_FILE_PATH = 'http://admin-uploadfiles-yyjs.oss-cn-beijing.aliyuncs.com/'
